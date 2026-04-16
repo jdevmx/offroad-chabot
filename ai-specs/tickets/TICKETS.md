@@ -10,10 +10,9 @@ Do not edit the ticket entries manually — use `/create-ticket` to create new t
 ## To Do
 
 <!-- tickets with status: todo -->
-- **[TASK-003]** Firebase Admin SDK init + env validation _(feature · backend)_ — plan ready: `ai-specs/changes/TASK-003_backend.md`
 - **[TASK-004]** Client repository (Firestore clients collection) _(feature · backend)_ — plan ready: `ai-specs/changes/TASK-004_backend.md`
-- **[TASK-005]** Conversation repository (Firestore conversations collection) _(feature · backend)_
-- **[TASK-006]** PIN auth backend (register, login, check-username, custom token) _(feature · backend)_
+- **[TASK-005]** Conversation repository (Firestore conversations collection) _(feature · backend)_ — plan ready: `ai-specs/changes/TASK-005_backend.md`
+- **[TASK-006]** PIN auth backend (register, login, check-username, custom token) _(feature · backend)_ — plan ready: `ai-specs/changes/TASK-006_backend.md`
 - **[TASK-007]** Auth middleware (Firebase ID token verification) _(feature · backend)_
 - **[TASK-008]** Tavily Search tool _(feature · backend)_
 - **[TASK-009]** Firestore conversation memory + summary compression _(feature · backend)_
@@ -34,6 +33,7 @@ Do not edit the ticket entries manually — use `/create-ticket` to create new t
 ## Done
 
 <!-- tickets with status: done -->
+- **[TASK-003]** Firebase Admin SDK init + env validation _(feature · backend)_ — plan ready: `ai-specs/changes/TASK-003_backend.md`
 - **[TASK-001]** Backend scaffold + healthcheck _(feature · backend)_ — plan ready: `ai-specs/changes/TASK-001_backend.md`
 - **[TASK-002]** Frontend scaffold + single-page shell _(feature · frontend)_ — plan ready: `ai-specs/changes/TASK-002_frontend.md`
 
