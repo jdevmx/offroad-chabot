@@ -8,6 +8,12 @@ Produce a step-by-step implementation plan for a ticket, ready to hand off for d
 
 ---
 
+## Step -2: Read ARCHITECTURE.md Spec Tracker
+
+Read the `## Spec Tracker` table in `ARCHITECTURE.md`. Locate the row for this ticket ID and use its `Title` and `Layer` as additional context while producing the plan.
+
+---
+
 ## Step -1: Conflict Check (MANDATORY — run before anything else)
 
 Read `ai-specs/project.yml` and load `project.ticket_system`.
@@ -107,3 +113,11 @@ Update `ai-specs/tickets/[ticket-id].md` frontmatter:
 - Set `plan_frontend` to `ai-specs/changes/[ticket-id]_frontend.md` (if frontend plan was produced)
 
 Update `ai-specs/tickets/TICKETS.md` to reflect the plan is ready.
+
+## Step 3: Update ARCHITECTURE.md Spec Tracker
+
+Open `ARCHITECTURE.md` and find the `## Spec Tracker` table.
+
+- Locate the row whose `ID` matches the ticket ID.
+- Set the `Planned` column to today's date (`YYYY-MM-DD`).
+- Leave all other columns unchanged.
