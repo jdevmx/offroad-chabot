@@ -39,7 +39,7 @@ alwaysApply: true
 
 ## Overview
 
-This document defines the standards for building and maintaining the **OffRoad Chabot** AI agent. The agent is a single-agent system built with **LangChain.js** and **TypeScript**, powered by **gpt-4o**, using **Firebase Firestore** as the conversation memory store and **Tavily Search API** plus vehicle lookup as tools.
+This document defines the standards for building and maintaining the **OffRoad Chabot** AI agent. The agent is a single-agent system built with **LangChain.js** and **TypeScript**, powered by **mistral-medium-latest**, using **Firebase Firestore** as the conversation memory store and **Tavily Search API** plus vehicle lookup as tools.
 
 The agent's primary responsibilities are:
 - Recognize returning users and load their profile from Firestore (`clients` collection)
@@ -55,7 +55,7 @@ The agent's primary responsibilities are:
 |-------|-----------|
 | Agent framework | LangChain.js (`langchain`, `@langchain/openai`, `@langchain/community`) |
 | Language | TypeScript (strict mode) |
-| LLM | gpt-4o (OpenAI) |
+| LLM | mistral-medium-latest (`@langchain/mistralai`) |
 | Orchestration | Single-agent (ReAct / Tool-calling agent) |
 | Memory | Firebase Firestore (`conversations` collection) |
 | Tools | Tavily Search API, vehicle lookup |

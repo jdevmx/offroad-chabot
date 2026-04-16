@@ -27,7 +27,6 @@ project:
   # Run ./ai-specs/init.sh after changing this list.
   copilots:
     - claude
-    - kiro
 
   # ── Workflow automation ───────────────────────────────────────────────────
   # Control which steps are automated at the end of /develop-backend and
@@ -83,7 +82,7 @@ mcp:
 agent:
   framework: "LangChain.js"
   language: "TypeScript"
-  model: "gpt-4o"
+  model: "mistral-medium-latest"
   orchestration: "single-agent"
   memory: "Firebase Firestore"
   tools: "Tavily Search API, vehicle lookup"
