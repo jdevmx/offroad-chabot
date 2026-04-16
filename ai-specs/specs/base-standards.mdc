@@ -20,7 +20,7 @@ alwaysApply: true
 - **English Only**: All technical artifacts must always use English, including:
     - Code (variables, functions, classes, comments, error messages, log messages)
     - Documentation (README, guides, API docs)
-    - {{TICKET_SYSTEM}} tickets (titles, descriptions, comments)
+    - local tickets (titles, descriptions, comments)
     - Data schemas and database names
     - Configuration files and scripts
     - Git commit messages
@@ -47,4 +47,4 @@ For detailed standards and guidelines specific to different areas of the project
 - [Documentation Standards](./documentation-standards.mdc) - Technical documentation structure, formatting, and maintenance guidelines, including AI standards like this document
 - [Infrastructure Standards](./infrastructure-standards.mdc) - IaC folder structure, security, networking, state management, and Well-Architected practices
 - [Workflow Guide](./workflow-guide.md) - How to use this template: standard flow, command reference, and key principles for agents
-{{ADDITIONAL_STANDARDS}}
+- [Agent Standards](./agent-standards.mdc) - agent loop design, tool schema definitions, error recovery, observability, and evaluation strategies

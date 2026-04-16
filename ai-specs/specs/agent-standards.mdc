@@ -1,0 +1,422 @@
+---
+description: AI agent standards, best practices, and conventions for the OffRoad Chabot LangChain.js/TypeScript agent including agent loop design, tool schema definitions, error recovery, observability, and evaluation strategies
+globs: ["backend/src/agent/**/*.ts", "backend/src/tools/**/*.ts", "backend/src/memory/**/*.ts"]
+alwaysApply: true
+---
+
+# AI Agent Standards and Best Practices
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Technology Stack](#technology-stack)
+- [Agent Architecture](#agent-architecture)
+  - [Agent Loop Design](#agent-loop-design)
+  - [Project Structure](#project-structure)
+- [Tool Design Standards](#tool-design-standards)
+  - [Tool Schema Definitions](#tool-schema-definitions)
+  - [Tool Implementation Pattern](#tool-implementation-pattern)
+- [Memory Management](#memory-management)
+  - [Firestore Conversation Memory](#firestore-conversation-memory)
+  - [User Context / Client Profile](#user-context--client-profile)
+- [Prompt Engineering Standards](#prompt-engineering-standards)
+  - [System Prompt Structure](#system-prompt-structure)
+  - [Personalization Layer](#personalization-layer)
+- [Error Recovery](#error-recovery)
+  - [Tool Errors](#tool-errors)
+  - [LLM Errors](#llm-errors)
+- [Observability](#observability)
+  - [Logging Standards](#logging-standards)
+  - [Tracing](#tracing)
+- [Security Best Practices](#security-best-practices)
+- [Testing Standards](#testing-standards)
+  - [Unit Testing Tools](#unit-testing-tools)
+  - [Integration Testing the Agent Loop](#integration-testing-the-agent-loop)
+  - [Evaluation Strategies](#evaluation-strategies)
+- [Development Workflow](#development-workflow)
+
+---
+
+## Overview
+
+This document defines the standards for building and maintaining the **OffRoad Chabot** AI agent. The agent is a single-agent system built with **LangChain.js** and **TypeScript**, powered by **gpt-4o**, using **Firebase Firestore** as the conversation memory store and **Tavily Search API** plus vehicle lookup as tools.
+
+The agent's primary responsibilities are:
+- Recognize returning users and load their profile from Firestore (`clients` collection)
+- Know which 4x4 vehicle the user owns (make, model, year) and tailor advice accordingly
+- Provide personalized off-road tips, maintenance guidance, trail recommendations, and gear suggestions
+- Persist each conversation turn to Firestore (`conversations` collection)
+
+---
+
+## Technology Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Agent framework | LangChain.js (`langchain`, `@langchain/openai`, `@langchain/community`) |
+| Language | TypeScript (strict mode) |
+| LLM | gpt-4o (OpenAI) |
+| Orchestration | Single-agent (ReAct / Tool-calling agent) |
+| Memory | Firebase Firestore (`conversations` collection) |
+| Tools | Tavily Search API, vehicle lookup |
+| Testing | Vitest |
+
+---
+
+## Agent Architecture
+
+### Agent Loop Design
+
+The agent follows a **ReAct (Reason + Act)** loop with tool calling:
+
+```
+User message
+    │
+    ▼
+Load user profile from Firestore (clients/{userId})
+    │
+    ▼
+Build system prompt with user + vehicle context
+    │
+    ▼
+Load conversation history from Firestore (conversations/{conversationId})
+    │
+    ▼
+Invoke LangChain agent executor with tools
+    ┌─────────────────────────────────┐
+    │  LLM reasons → selects tool     │
+    │  Tool executes → result appended│
+    │  Repeat until final answer      │
+    └─────────────────────────────────┘
+    │
+    ▼
+Persist new turn to Firestore
+    │
+    ▼
+Return response to user
+```
+
+Key principles:
+- **Stateless handler**: each invocation loads context fresh from Firestore — no in-memory global state
+- **User identity first**: always resolve the user before invoking the LLM
+- **Graceful degradation**: if a tool fails, the agent continues with a fallback answer rather than crashing
+
+### Project Structure
+
+```
+backend/src/
+├── agent/
+│   ├── agentExecutor.ts      # LangChain agent executor setup
+│   ├── systemPrompt.ts       # System prompt builder (injects user/vehicle context)
+│   └── agentRouter.ts        # Express route handler — entry point for chat requests
+├── tools/
+│   ├── tavilySearch.tool.ts  # Tavily web search tool
+│   └── vehicleLookup.tool.ts # Vehicle specs lookup tool
+├── memory/
+│   ├── firestoreMemory.ts    # LangChain BufferMemory backed by Firestore
+│   └── conversationRepo.ts  # Repository for conversations collection
+├── clients/
+│   └── clientRepo.ts         # Repository for clients collection (user profiles)
+└── infrastructure/
+    └── firebaseAdmin.ts      # Firebase Admin SDK initialization (singleton)
+```
+
+---
+
+## Tool Design Standards
+
+### Tool Schema Definitions
+
+Every tool must have a precise JSON schema. Use `DynamicStructuredTool` from LangChain:
+
+```typescript
+import { DynamicStructuredTool } from 'langchain/tools';
+import { z } from 'zod';
+
+export const vehicleLookupTool = new DynamicStructuredTool({
+  name: 'vehicle_lookup',
+  description:
+    'Look up technical specifications, known issues, and off-road capabilities for a 4x4 vehicle. Use this when the user asks about their specific vehicle.',
+  schema: z.object({
+    make: z.string().describe('Vehicle manufacturer, e.g. Toyota, Jeep, Land Rover'),
+    model: z.string().describe('Vehicle model, e.g. Land Cruiser, Wrangler, Defender'),
+    year: z.number().int().min(1970).max(2030).describe('Model year'),
+  }),
+  func: async ({ make, model, year }) => {
+    // implementation
+  },
+});
+```
+
+Tool naming rules:
+- Use `snake_case` names (e.g., `vehicle_lookup`, `tavily_search`)
+- Description must explain **when** to use the tool, not just what it does
+- Schema fields must include `.describe()` for every property
+- Tools must return a `string` — serialize objects to JSON string if needed
+
+### Tool Implementation Pattern
+
+```typescript
+// tools/tavilySearch.tool.ts
+import { TavilySearchResults } from '@langchain/community/tools/tavily_search';
+
+export function buildTavilySearchTool(): TavilySearchResults {
+  return new TavilySearchResults({
+    maxResults: 5,
+    apiKey: process.env.TAVILY_API_KEY,
+  });
+}
+```
+
+- Instantiate tools as factory functions, not module-level singletons, to keep them testable
+- API keys must come from environment variables — never hardcoded
+- Validate that required env vars exist at startup (in `firebaseAdmin.ts` or a dedicated `env.ts`)
+
+---
+
+## Memory Management
+
+### Firestore Conversation Memory
+
+Use a custom `BufferWindowMemory` backed by Firestore so conversation history survives across HTTP requests:
+
+```typescript
+// memory/firestoreMemory.ts
+import { BufferWindowMemory, ChatMessageHistory } from 'langchain/memory';
+import { HumanMessage, AIMessage } from '@langchain/core/messages';
+import { conversationRepo } from './conversationRepo';
+
+export async function buildMemory(conversationId: string): Promise<BufferWindowMemory> {
+  const turns = await conversationRepo.getHistory(conversationId, { limit: 20 });
+
+  const history = new ChatMessageHistory(
+    turns.flatMap(t => [new HumanMessage(t.userMessage), new AIMessage(t.assistantMessage)])
+  );
+
+  return new BufferWindowMemory({
+    k: 10,
+    chatHistory: history,
+    returnMessages: true,
+    memoryKey: 'chat_history',
+  });
+}
+```
+
+Firestore schema — `conversations` collection:
+
+```
+conversations/{conversationId}
+  userId: string
+  createdAt: Timestamp
+  updatedAt: Timestamp
+  turns: Array<{
+    userMessage: string
+    assistantMessage: string
+    timestamp: Timestamp
+    toolsUsed: string[]
+  }>
+```
+
+### User Context / Client Profile
+
+Firestore schema — `clients` collection:
+
+```
+clients/{userId}
+  displayName: string
+  email: string
+  vehicle: {
+    make: string       // e.g., "Toyota"
+    model: string      // e.g., "Land Cruiser 200"
+    year: number       // e.g., 2021
+    trim: string?      // e.g., "GX"
+    modifications: string[]  // e.g., ["lift kit", "snorkel", "ARB bumper"]
+  }
+  preferences: {
+    terrainTypes: string[]   // e.g., ["sand", "rock crawling", "mud"]
+    experience: "beginner" | "intermediate" | "expert"
+  }
+  createdAt: Timestamp
+  updatedAt: Timestamp
+```
+
+---
+
+## Prompt Engineering Standards
+
+### System Prompt Structure
+
+Build the system prompt dynamically per request, injecting the resolved user and vehicle context:
+
+```typescript
+// agent/systemPrompt.ts
+import { ClientProfile } from '../clients/clientRepo';
+
+export function buildSystemPrompt(client: ClientProfile | null): string {
+  const vehicleSection = client?.vehicle
+    ? `The user owns a ${client.vehicle.year} ${client.vehicle.make} ${client.vehicle.model}` +
+      (client.vehicle.modifications?.length
+        ? ` with the following modifications: ${client.vehicle.modifications.join(', ')}.`
+        : '.')
+    : 'The user has not registered a vehicle yet. Ask them about their 4x4 if relevant.';
+
+  return `You are an expert off-road driving assistant specializing in 4x4 vehicles, trail navigation, vehicle maintenance, and overlanding gear.
+
+${vehicleSection}
+
+Guidelines:
+- Provide practical, safety-first advice tailored to the user's specific vehicle and experience level.
+- When recommending products, tools, or techniques, consider the user's terrain preferences.
+- Use the vehicle_lookup tool when the user asks technical questions about their vehicle.
+- Use the tavily_search tool to find current trail reports, regulations, or gear reviews.
+- If the user has not registered a vehicle, gather that information naturally during conversation and suggest they update their profile.
+- Always answer in the same language the user uses.`;
+}
+```
+
+### Personalization Layer
+
+- Always call `clientRepo.findById(userId)` before building the prompt
+- If the user is unknown, proceed with a generic prompt and prompt them to register
+- Never hallucinate vehicle specs — use the `vehicle_lookup` tool for technical questions
+- Inject `experience` level into the prompt to calibrate advice complexity
+
+---
+
+## Error Recovery
+
+### Tool Errors
+
+Tools must catch their own errors and return a descriptive string rather than throwing:
+
+```typescript
+func: async ({ make, model, year }) => {
+  try {
+    const result = await lookupVehicleSpecs(make, model, year);
+    return JSON.stringify(result);
+  } catch (error) {
+    return `Vehicle lookup failed for ${year} ${make} ${model}. Provide general advice instead.`;
+  }
+},
+```
+
+This prevents a single tool failure from aborting the entire agent loop.
+
+### LLM Errors
+
+Wrap the agent executor call in the route handler:
+
+```typescript
+try {
+  const result = await agentExecutor.invoke({ input: userMessage, chat_history });
+  await conversationRepo.appendTurn(conversationId, { userMessage, assistantMessage: result.output });
+  return res.json({ message: result.output });
+} catch (error) {
+  logger.error('Agent execution failed', { error, userId, conversationId });
+  return res.status(500).json({ error: 'The assistant encountered an error. Please try again.' });
+}
+```
+
+---
+
+## Observability
+
+### Logging Standards
+
+Use a structured logger (e.g., `pino`) with consistent fields:
+
+```typescript
+logger.info('Agent invoked', {
+  userId,
+  conversationId,
+  inputLength: userMessage.length,
+  toolsAvailable: tools.map(t => t.name),
+});
+
+logger.info('Agent completed', {
+  userId,
+  conversationId,
+  outputLength: result.output.length,
+  intermediateSteps: result.intermediateSteps?.length ?? 0,
+});
+```
+
+Always log:
+- `userId` and `conversationId` on every log line
+- Tools used per turn (from `result.intermediateSteps`)
+- Errors with full stack trace
+
+### Tracing
+
+Enable LangChain callbacks for step-level tracing in development:
+
+```typescript
+import { ConsoleCallbackHandler } from 'langchain/callbacks';
+
+const executor = await AgentExecutor.fromAgentAndTools({
+  agent,
+  tools,
+  callbacks: process.env.NODE_ENV !== 'production' ? [new ConsoleCallbackHandler()] : [],
+});
+```
+
+---
+
+## Security Best Practices
+
+- **Never expose API keys** in responses or logs — mask them in error messages
+- **Validate userId** against the authenticated session before loading client profile — never trust user-supplied userId from the request body
+- **Sanitize tool outputs** before including them in the LLM context — strip HTML if fetching web content
+- **Rate-limit** agent invocations per user to prevent abuse
+- **Firestore security rules** must restrict `clients/{userId}` reads to the authenticated user only
+
+---
+
+## Testing Standards
+
+### Unit Testing Tools
+
+Each tool must have unit tests that mock the external API:
+
+```typescript
+// tools/tavilySearch.tool.test.ts
+import { describe, it, expect, vi } from 'vitest';
+import { buildTavilySearchTool } from './tavilySearch.tool';
+
+vi.mock('@langchain/community/tools/tavily_search');
+
+describe('buildTavilySearchTool', () => {
+  it('returns a TavilySearchResults instance', () => {
+    const tool = buildTavilySearchTool();
+    expect(tool.name).toBe('tavily_search_results_json');
+  });
+});
+```
+
+### Integration Testing the Agent Loop
+
+Use a mock LLM to test the full agent loop without hitting OpenAI:
+
+```typescript
+import { FakeChatModel } from '@langchain/core/utils/testing';
+
+const mockLLM = new FakeChatModel({
+  responses: [new AIMessage('Here is your off-road advice...')],
+});
+```
+
+### Evaluation Strategies
+
+- **Golden dataset**: maintain a set of 20+ user inputs with expected tool calls and response quality criteria in `backend/src/agent/__tests__/golden/`
+- **Tool call assertions**: verify the agent calls the correct tool for vehicle-specific questions
+- **Hallucination checks**: assert that vehicle specs in responses match `vehicle_lookup` output, not invented data
+- **Coverage threshold**: 80% for agent, tool, and memory modules
+
+---
+
+## Development Workflow
+
+- Feature branches follow the standard `<TICKET_ID>-<description>` convention
+- New tools must be registered in `agentExecutor.ts` and documented here
+- Any change to Firestore schema must update both this document and `ai-specs/specs/data-model.md`
+- Run `npm run test:coverage` before opening a PR — 80% threshold enforced

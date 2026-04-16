@@ -7,9 +7,9 @@
 # ─────────────────────────────────────────────────────────────────────────────
 
 project:
-  name: "{{PROJECT_NAME}}"               # e.g., "MyApp", "LTI", "Acme Platform"
-  description: "{{PROJECT_DESCRIPTION}}" # e.g., "Recruitment tracking system"
-  ticket_system: "{{TICKET_SYSTEM}}"     # "Jira", "Linear", "GitHub Issues", "Shortcut", "local"
+  name: "OffRoad Chabot"
+  description: "AI Assistant for off-road enthusiasts that recognizes users, knows their 4x4 vehicles, and provides personalized advice"
+  ticket_system: "local"
 
   # List all the types that describe your project (one or more):
   #   fullstack       — backend API + frontend UI
@@ -19,10 +19,8 @@ project:
   #   ai-agent        — Autonomous AI agent / multi-agent system
   #   infrastructure  — IaC for cloud resources (can combine with any other type)
   types:
-    - "{{PROJECT_TYPE}}"        # e.g., - backend-only
-                                #        - mcp-server
-                                #        - ai-agent
-                                #        - infrastructure
+    - fullstack
+    - ai-agent
 
   # AI tools used in this project. claude is the default when list is empty.
   # Supported: claude, cursor, windsurf, copilot, gemini, kiro
@@ -43,29 +41,29 @@ project:
 # Backend — required when types includes: fullstack, backend-only
 # =============================================================================
 backend:
-  runtime: "{{BACKEND_RUNTIME}}"               # "Node.js", "Python", "Go", "Java", "Ruby"
-  language: "{{BACKEND_LANGUAGE}}"             # "TypeScript", "JavaScript", "Python", "Go"
-  framework: "{{BACKEND_FRAMEWORK}}"           # "Express", "Fastify", "NestJS", "Django", "FastAPI", "Gin"
-  orm: "{{BACKEND_ORM}}"                       # "Prisma", "TypeORM", "SQLAlchemy", "GORM", "none"
-  database: "{{BACKEND_DATABASE}}"             # "PostgreSQL", "MySQL", "MongoDB", "SQLite", "none"
-  test_framework: "{{BACKEND_TEST_FRAMEWORK}}" # "Jest", "Vitest", "pytest", "Go test", "RSpec"
-  test_coverage: "{{BACKEND_TEST_COVERAGE}}"   # "90%", "80%", "75%"
-  architecture: "{{BACKEND_ARCHITECTURE}}"     # "DDD", "MVC", "Clean Architecture", "Hexagonal"
-  src_path: "{{BACKEND_SRC_PATH}}"             # "backend/src", "src", "app", "api"
+  runtime: "Node.js"
+  language: "TypeScript"
+  framework: "Express"
+  orm: "none"
+  database: "Firebase Firestore"
+  test_framework: "Vitest"
+  test_coverage: "80%"
+  architecture: "Clean Architecture"
+  src_path: "backend/src"
 
 # =============================================================================
 # Frontend — required when types includes: fullstack, frontend-only
 # =============================================================================
 frontend:
-  framework: "{{FRONTEND_FRAMEWORK}}"           # "React", "Vue", "Next.js", "Angular", "Svelte"
-  language: "{{FRONTEND_LANGUAGE}}"             # "TypeScript", "JavaScript"
-  build_tool: "{{FRONTEND_BUILD_TOOL}}"         # "Vite", "Create React App", "Next.js", "Webpack"
-  router: "{{FRONTEND_ROUTER}}"                 # "React Router DOM", "Vue Router", "Next.js App Router"
-  ui_library: "{{FRONTEND_UI_LIBRARY}}"         # "Bootstrap", "Tailwind CSS", "Material UI", "shadcn/ui"
-  http_client: "{{FRONTEND_HTTP_CLIENT}}"             # "Axios", "fetch", "TanStack Query", "SWR"
-  state_management: "{{FRONTEND_STATE_MANAGEMENT}}"   # "Redux", "Redux Toolkit", "Zustand", "none"
-  test_framework: "{{FRONTEND_TEST_FRAMEWORK}}"       # "Cypress", "Playwright", "Vitest", "Jest"
-  src_path: "{{FRONTEND_SRC_PATH}}"                   # "frontend/src", "src", "app"
+  framework: "Next.js"
+  language: "TypeScript"
+  build_tool: "Next.js"
+  router: "Next.js App Router"
+  ui_library: "Tailwind CSS"
+  http_client: "fetch"
+  state_management: "none"
+  test_framework: "Vitest"
+  src_path: "frontend/src"
 
 # =============================================================================
 # MCP Server — required when types includes: mcp-server
@@ -83,13 +81,13 @@ mcp:
 # AI Agent — required when types includes: ai-agent
 # =============================================================================
 agent:
-  framework: "{{AGENT_FRAMEWORK}}"             # "Claude Agent SDK", "LangChain", "CrewAI", "AutoGen", "custom"
-  language: "{{AGENT_LANGUAGE}}"               # "TypeScript", "Python"
-  model: "{{AGENT_MODEL}}"                     # "claude-opus-4-6", "claude-sonnet-4-6", "gpt-4o"
-  orchestration: "{{AGENT_ORCHESTRATION}}"     # "single-agent", "multi-agent", "hierarchical"
-  memory: "{{AGENT_MEMORY}}"                   # "none", "in-memory", "vector-db", "file"
-  tools: "{{AGENT_TOOLS}}"                     # comma-separated tools, e.g., "web_search, code_execution"
-  test_framework: "{{AGENT_TEST_FRAMEWORK}}"   # "Jest", "pytest", "Vitest"
+  framework: "LangChain.js"
+  language: "TypeScript"
+  model: "gpt-4o"
+  orchestration: "single-agent"
+  memory: "Firebase Firestore"
+  tools: "Tavily Search API, vehicle lookup"
+  test_framework: "Vitest"
 
 # =============================================================================
 # QA — optional, add "qa" to types to enable the QA agent and standards

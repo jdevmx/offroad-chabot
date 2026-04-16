@@ -1,8 +1,8 @@
-# AI Specifications & Development Rules
+# OffRoad Chabot
 
-This template provides coding standards, AI agents, and implementation automation that cover the full feature lifecycle — from idea to merged PR — with AI driving every step.
+AI Assistant for off-road enthusiasts that recognizes users, knows their 4x4 vehicles, and provides personalized advice
 
-Fill in `ai-specs/project.yml`, run `/setup-project`, and you're ready to develop.
+**Project type:** fullstack, ai-agent | **Ticket system:** local
 
 ## 📁 Repository Structure
 

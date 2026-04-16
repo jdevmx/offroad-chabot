@@ -1,5 +1,5 @@
 ---
-description: Backend development standards, best practices, and conventions for the {{PROJECT_NAME}} {{BACKEND_RUNTIME}}/{{BACKEND_LANGUAGE}}/{{BACKEND_FRAMEWORK}} application including Domain-Driven Design, SOLID principles, architecture patterns, API design, and testing practices
+description: Backend development standards, best practices, and conventions for the OffRoad Chabot Node.js/TypeScript/Express application including Clean Architecture, SOLID principles, architecture patterns, API design, and testing practices
 globs: ["backend/src/**/*.ts", "backend/prisma/**/*.{prisma,ts}", "backend/jest.config.js", "backend/tsconfig.json", "backend/serverless.yml", "backend/package.json"]
 alwaysApply: true
 ---
@@ -72,24 +72,24 @@ alwaysApply: true
 
 ## Overview
 
-This document outlines the best practices, conventions, and standards used in the **{{PROJECT_NAME}}** backend application. The backend follows {{BACKEND_ARCHITECTURE}} principles and implements a layered architecture to ensure code consistency, maintainability, and scalability.
+This document outlines the best practices, conventions, and standards used in the **OffRoad Chabot** backend application. The backend follows Clean Architecture principles and implements a layered architecture to ensure code consistency, maintainability, and scalability.
 
 ## Technology Stack
 
 ### Core Technologies
-- **{{BACKEND_RUNTIME}}**: Runtime environment
-- **{{BACKEND_LANGUAGE}}**: Type-safe development with strict mode
-- **{{BACKEND_FRAMEWORK}}**: Web application framework
-- **{{BACKEND_ORM}}**: ORM for database access
+- **Node.js**: Runtime environment
+- **TypeScript**: Type-safe development with strict mode
+- **Express**: Web application framework
+- **none**: No traditional ORM (Firebase Firestore SDK used directly)
 
 ### Database & ORM
-- **{{BACKEND_DATABASE}}**: Primary database
-- **{{BACKEND_ORM}} Client**: Type-safe database client
-- **{{BACKEND_ORM}} Migrate**: Database migration tool
+- **Firebase Firestore**: Primary database
+- **Firebase Admin SDK**: Server-side Firestore client
+- **Firestore collections**: `clients` and `conversations`
 
 ### Testing Framework
-- **{{BACKEND_TEST_FRAMEWORK}}**: Testing framework with {{BACKEND_LANGUAGE}} support
-- **Coverage Threshold**: {{BACKEND_TEST_COVERAGE}} for branches, functions, lines, and statements
+- **Vitest**: Testing framework with TypeScript support
+- **Coverage Threshold**: 80% for branches, functions, lines, and statements
 - **Test Location**: `__tests__` directories and `.test.ts` files
 
 ### Development Tools

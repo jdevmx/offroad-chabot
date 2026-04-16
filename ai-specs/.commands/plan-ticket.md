@@ -21,7 +21,7 @@ Read `ai-specs/tickets/[ticket-id].md` and inspect the frontmatter:
 
 **If `ticket_system` is an external system (Jira, Linear, etc.):**
 
-Fetch the ticket via the {{TICKET_SYSTEM}} MCP and inspect:
+Fetch the ticket via the local MCP and inspect:
 - If assigned to someone else **and** status is `In Progress` or further, **STOP** and report:
   > ⚠️ Ticket `[ID]` is already in progress by `[assignee]`. Check `ai-specs/changes/` for existing plans before proceeding.
 - If unassigned or status is `To Do` / `Backlog`, proceed.
@@ -84,7 +84,7 @@ Output a Markdown document at `ai-specs/changes/[ticket-id]_frontend.md` followi
 
 - **Header**: `# Frontend Implementation Plan: [TICKET-ID] [Feature Name]`
 - **Overview**: Brief description and frontend architecture principles (component-based, service layer, React patterns)
-- **Architecture Context**: Components/services involved, files referenced, routing considerations, state management approach (global: `{{FRONTEND_STATE_MANAGEMENT}}` vs local hooks)
+- **Architecture Context**: Components/services involved, files referenced, routing considerations, state management approach (global: `none` vs local hooks)
 - **Implementation Steps**:
   - **Step 0**: Create feature branch (`feature/[ticket-id]-frontend`). Must be the first step.
   - **Step N**: Per step — File, Action, Component/Function Signature, Implementation Steps, Dependencies, Implementation Notes. Common sequence: service methods → components → routing → Cypress E2E tests.

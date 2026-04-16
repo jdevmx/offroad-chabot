@@ -1,5 +1,5 @@
 ---
-description: Frontend development standards, best practices, and conventions for the {{PROJECT_NAME}} {{FRONTEND_FRAMEWORK}} application including component patterns, state management, UI/UX guidelines, and testing practices
+description: Frontend development standards, best practices, and conventions for the OffRoad Chabot Next.js application including component patterns, state management, UI/UX guidelines, and testing practices
 globs: ["frontend/src/**/*.{js,jsx,ts,tsx}", "frontend/cypress/**/*.{ts,js}", "frontend/tsconfig.json", "frontend/cypress.config.ts", "frontend/package.json"]
 alwaysApply: true
 ---
@@ -49,26 +49,26 @@ alwaysApply: true
 
 ## Overview
 
-This document outlines the best practices, conventions, and standards used in the **{{PROJECT_NAME}}** frontend application. These practices ensure code consistency, maintainability, and optimal development experience.
+This document outlines the best practices, conventions, and standards used in the **OffRoad Chabot** frontend application. These practices ensure code consistency, maintainability, and optimal development experience.
 
 ## Technology Stack
 
 ### Core Technologies
-- **{{FRONTEND_FRAMEWORK}}**: UI framework with functional components and hooks
-- **{{FRONTEND_LANGUAGE}}**: For type safety and better development experience
-- **{{FRONTEND_BUILD_TOOL}}**: Build tooling and development server
-- **{{FRONTEND_ROUTER}}**: Client-side routing and navigation
+- **Next.js**: UI framework with functional components and hooks
+- **TypeScript**: For type safety and better development experience
+- **Next.js**: Build tooling and development server
+- **Next.js App Router**: Client-side routing and navigation
 
 ### UI Framework
-- **{{FRONTEND_UI_LIBRARY}}**: CSS/component framework for responsive design
+- **Tailwind CSS**: CSS/component framework for responsive design
 
 ### State Management & Data Flow
-- **{{FRONTEND_STATE_MANAGEMENT}}**: Global state management library (`none` = Native React hooks only)
-- **{{FRONTEND_FRAMEWORK}} Hooks**: useState, useEffect, useContext for local/shared state management
-- **{{FRONTEND_HTTP_CLIENT}}**: HTTP client for API communication
+- **none**: Global state management library (`none` = Native React hooks only)
+- **Next.js Hooks**: useState, useEffect, useContext for local/shared state management
+- **fetch**: HTTP client for API communication
 
 ### Testing Framework
-- **{{FRONTEND_TEST_FRAMEWORK}}**: End-to-end testing
+- **Vitest**: End-to-end testing
 - **Jest**: Unit testing
 - **Testing Library**: Component testing utilities
 
@@ -264,10 +264,10 @@ const CandidateCard: React.FC<CandidateCardProps> = ({ candidate, index, onClick
 
 ### State Management
 
-#### Global State: {{FRONTEND_STATE_MANAGEMENT}}
-- When `{{FRONTEND_STATE_MANAGEMENT}}` is `none`: use Native React hooks only (useState, useContext, useReducer)
-- When `{{FRONTEND_STATE_MANAGEMENT}}` is `Redux` or `Redux Toolkit`: use Redux store for cross-cutting global state; prefer Redux Toolkit's `createSlice` and `createAsyncThunk`
-- When `{{FRONTEND_STATE_MANAGEMENT}}` is `Zustand`: use Zustand stores for lightweight global state; keep stores small and domain-scoped
+#### Global State: none
+- When `none` is `none`: use Native React hooks only (useState, useContext, useReducer)
+- When `none` is `Redux` or `Redux Toolkit`: use Redux store for cross-cutting global state; prefer Redux Toolkit's `createSlice` and `createAsyncThunk`
+- When `none` is `Zustand`: use Zustand stores for lightweight global state; keep stores small and domain-scoped
 - **Local component state** always takes priority over global state — only promote to global when multiple unrelated components need the same data
 
 #### Local State with Hooks
