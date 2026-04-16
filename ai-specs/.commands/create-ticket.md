@@ -19,6 +19,8 @@ If none exist, start at `TASK-001`. Increment by 1 for the next ticket.
 
 ## Step 2 — Gather ticket details
 
+Read the `## Spec Tracker` table in `ARCHITECTURE.md` to check if a matching ticket already exists (by title or ID). If it does, use its title and layer as pre-filled context.
+
 If `$ARGUMENTS` provides a description, use it. Otherwise ask the user for:
 - **Title**: short imperative sentence (e.g., "Add user login endpoint")
 - **Type**: `feature` | `bug` | `chore` | `docs`
@@ -76,7 +78,14 @@ Open `ai-specs/tickets/TICKETS.md` and add an entry under the `## To Do` section
 
 Format: `- **[ID]** Title _(type · scope)_`
 
-## Step 5 — Confirm
+## Step 5 — Update ARCHITECTURE.md Spec Tracker
+
+Open `ARCHITECTURE.md` and find the `## Spec Tracker` table.
+
+- If a row for this ticket ID already exists, set its `Created` column to today's date (`YYYY-MM-DD`).
+- If no row exists, append a new row with the ticket ID, title, layer (derived from scope: `backend` → Backend, `frontend` → Frontend, `fullstack` → Fullstack), today's date in `Created`, and `—` in `Planned` and `Implemented`.
+
+## Step 6 — Confirm
 
 Print a summary:
 

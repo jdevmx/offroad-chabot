@@ -99,10 +99,65 @@ AI Orchestration: LangChain.js with OpenAI and Tavily Search API.
 
 ---
 
+### DD-005 — PIN-only auth via Firebase custom tokens
+
+**Date:** 2026-04-16
+**Context:** This is a prototype. Full email/password auth adds friction; OAuth adds complexity.
+**Decision:** Users register with a unique username + 4-digit PIN. Backend hashes PIN (bcrypt), verifies it on login, and issues a Firebase custom token. Frontend signs in with `signInWithCustomToken()`.
+**Rationale:** Lowest friction for a prototype while keeping Firebase Auth UID valid for Firestore security rules. No email required.
+**Trade-offs:** No password recovery. PIN brute-force risk (mitigate with rate limiting in a later iteration).
+
+---
+
+### DD-006 — Vehicle data entered at registration, stored in client profile
+
+**Date:** 2026-04-16
+**Context:** Initial design considered a static JSON dataset or external API for vehicle lookup.
+**Decision:** Vehicle data (make, model, year, trim, modifications) is entered by the user in the registration form and stored in `clients/{userId}.vehicle`. No external vehicle lookup tool.
+**Rationale:** Simpler for a prototype. The agent already has the vehicle data via the system prompt — no extra tool call needed.
+**Trade-offs:** Vehicle data quality depends on user input. Not validated against a vehicle database.
+
+---
+
+### DD-007 — Single-page layout with anonymous + authenticated chat
+
+**Date:** 2026-04-16
+**Context:** App needs to be low-friction — users should be able to try the chat before registering.
+**Decision:** Single route (`/`). Left panel shows Register/Login buttons (or user info when logged in). Anonymous users can chat freely; messages are in React state only (lost on refresh). Logged-in users get persistent history.
+**Rationale:** Maximizes discoverability. No forced registration wall.
+**Trade-offs:** Anonymous messages are not recoverable after refresh (accepted, intentional).
+
+---
+
+### DD-008 — Chat history compression (summary + last 10 turns)
+
+**Date:** 2026-04-16
+**Context:** Long conversations would blow up the LLM context window and increase cost.
+**Decision:** When `turns.length > 20`, the oldest turns are summarized via LLM call and stored in `conversations/{id}.summary`. The `turns` array keeps only the last 10. LLM context = system prompt + summary (if any) + last 10 turns.
+**Rationale:** Keeps per-request token count bounded without losing conversational continuity.
+**Trade-offs:** Summary generation costs one extra LLM call. Summary may lose nuance from older turns.
+
+---
+
+### DD-009 — Real-time username uniqueness check
+
+**Date:** 2026-04-16
+**Context:** Unique usernames are required for login; user should know immediately if a name is taken.
+**Decision:** Registration form calls `GET /auth/check-username?username=xxx` (debounced, ~400 ms) and shows inline availability feedback.
+**Rationale:** Better UX than discovering a conflict on form submit.
+**Trade-offs:** Small race condition window between check and submit (acceptable for prototype).
+
+---
+
 ## Pending Decisions
 
-- [ ] Authentication strategy — Firebase Auth vs. custom JWT vs. session cookies
-- [ ] API design — REST vs. tRPC for the backend endpoints
-- [ ] Vehicle lookup tool data source — static JSON dataset, external API, or scraped data
 - [ ] Deployment target — Firebase Hosting + Cloud Functions, Vercel + Railway, or other
 - [ ] Rate limiting strategy — per-user token budget or request-per-minute cap
+- [ ] API design — REST (current default) vs. tRPC
+
+---
+
+## Architecture Reference
+
+Full system architecture, data model, UI layout, agent design, and spec tracker:
+→ [ARCHITECTURE.md](./ARCHITECTURE.md)

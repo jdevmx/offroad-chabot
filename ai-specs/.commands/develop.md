@@ -14,6 +14,8 @@ Read `ai-specs/project.yml` and load `project.ticket_system`, `project.workflow.
 
 Read `ai-specs/tickets/$TICKET_ID.md` and understand the problem, acceptance criteria, and any domain hints (labels, type field, description).
 
+Also read the `## Spec Tracker` table in `ARCHITECTURE.md` and locate the row for `$TICKET_ID`. Use its `Title` and `Layer` as additional context for scoping the implementation.
+
 ## 3. Determine the implementation domain
 
 Check which plan files exist:
@@ -69,6 +71,14 @@ Run only the phases that apply based on step 3.
 **If `ticket_system` is `local`**: update `ai-specs/tickets/$TICKET_ID.md`:
 - Set `status` to `done`
 - Move the entry in `ai-specs/tickets/TICKETS.md` from `## In Progress` to `## Done`
+
+## 10. Update ARCHITECTURE.md Spec Tracker
+
+Open `ARCHITECTURE.md` and find the `## Spec Tracker` table.
+
+- Locate the row whose `ID` matches `$TICKET_ID`.
+- Set the `Implemented` column to today's date (`YYYY-MM-DD`).
+- Leave all other columns unchanged.
 
 ---
 
