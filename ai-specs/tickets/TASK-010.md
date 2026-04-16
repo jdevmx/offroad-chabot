@@ -7,7 +7,7 @@ scope: backend
 assignee: unassigned
 created: 2026-04-16
 branch: ~
-plan_backend: ~
+plan_backend: ai-specs/changes/TASK-010_backend.md
 plan_frontend: ~
 ---
 

@@ -1,9 +1,17 @@
 import { Router, Request, Response } from 'express';
+import { Firestore } from 'firebase-admin/firestore';
 
-const healthRouter = Router();
+export function createHealthRouter(db: Firestore): Router {
+  const router = Router();
 
-healthRouter.get('/', (_req: Request, res: Response): void => {
-  res.status(200).json({ status: 'ok' });
-});
+  router.get('/', async (_req: Request, res: Response): Promise<void> => {
+    try {
+      await db.listCollections();
+      res.status(200).json({ status: 'ok', database: 'ok' });
+    } catch {
+      res.status(503).json({ status: 'error', database: 'error' });
+    }
+  });
 
-export { healthRouter };
+  return router;
+}

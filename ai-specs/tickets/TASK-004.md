@@ -2,11 +2,11 @@
 id: TASK-004
 title: "Client repository (Firestore clients collection)"
 type: feature
-status: todo
+status: done
 scope: backend
-assignee: unassigned
+assignee: Jorge Dominguez
 created: 2026-04-16
-branch: ~
+branch: main
 plan_backend: ai-specs/changes/TASK-004_backend.md
 plan_frontend: ~
 ---
