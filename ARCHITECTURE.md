@@ -334,9 +334,9 @@ Tracks all planned specs with lifecycle dates. Updated as tickets move through t
 | ID | Title | Layer | Created | Planned | Implemented |
 |---|---|---|---|---|---|
 | TASK-001 | Backend scaffold + healthcheck | Backend | — | 2026-04-16 | 2026-04-16 |
-| TASK-002 | Frontend scaffold + single-page shell | Frontend | 2026-04-16 | 2026-04-16 | — |
-| TASK-003 | Firebase Admin SDK init + env validation | Backend | 2026-04-16 | — | — |
-| TASK-004 | Client repository (Firestore clients collection) | Backend | 2026-04-16 | — | — |
+| TASK-002 | Frontend scaffold + single-page shell | Frontend | 2026-04-16 | 2026-04-16 | 2026-04-16 |
+| TASK-003 | Firebase Admin SDK init + env validation | Backend | 2026-04-16 | 2026-04-16 | — |
+| TASK-004 | Client repository (Firestore clients collection) | Backend | 2026-04-16 | 2026-04-16 | — |
 | TASK-005 | Conversation repository (Firestore conversations collection) | Backend | 2026-04-16 | — | — |
 | TASK-006 | PIN auth backend (register, login, check-username, custom token) | Backend | 2026-04-16 | — | — |
 | TASK-007 | Auth middleware (Firebase ID token verification) | Backend | 2026-04-16 | — | — |

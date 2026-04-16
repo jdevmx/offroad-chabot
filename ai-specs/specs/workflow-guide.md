@@ -17,7 +17,7 @@ This document explains how this template is meant to be used. It survives the `/
 | Create | `/create-ticket <title>` | Create a local ticket in `ai-specs/tickets/` (skip if using an external system) |
 | Enrich | `/enrich-us <TICKET_ID>` | Reads the ticket → adds acceptance criteria, technical details, test requirements |
 | Plan | `/plan-ticket <TICKET_ID>` | Infers domain (backend/frontend/full-stack) and generates plan(s) in `ai-specs/changes/` |
-| Implement | `/develop <TICKET_ID> [FIGMA_URL]` | Creates branch, reads plan, implements with TDD, commits, opens PR, updates kanban |
+| Implement | `/develop <TICKET_ID> [FIGMA_URL]` | Reads plan, implements with TDD on `main`, commits, updates kanban |
 | Sync docs | `/update-docs` | Updates API spec, data model, and any affected documentation |
 
 Both `/plan-ticket` and `/develop` automatically detect the domain from the ticket content and available plan files — no need to choose a backend or frontend variant.
@@ -87,16 +87,11 @@ For teams, **an external ticket system (Jira, Linear, GitHub Issues) is strongly
 - Implementation plans live in `ai-specs/changes/`, versioned in git
 - No one depends on another developer's local state to pick up a task
 
-## Branch Naming Convention
+## Git Strategy
 
-Before any implementation begins, agents must:
+This is a prototype. All work is committed directly to `main` — no feature branches, no PRs.
 
-1. Pull `main` to ensure it is up to date (`git pull origin main`)
-2. Create a branch from `main` using the format: `<TICKET_ID>-<short-description>`
-
-Examples: `TASK-001-add-user-auth`, `SCRUM-42-fix-login-redirect`
-
-This applies to all work types: backend, frontend, infrastructure, AI agents, MCP servers, etc.
+Before any implementation begins, confirm you are on `main` and the working tree is clean.
 
 ## Key Principle for Agents
 
