@@ -1,0 +1,1 @@
+../../ai-specs/.agents/qa-engineer.md

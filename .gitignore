@@ -1,0 +1,32 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Claude Code
+.claude/sessions/
+.claude/todos/
+memory/
+
+# AI-generated output
+docs/agent_outputs/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Node.js (if any tooling is added)
+node_modules/
+npm-debug.log*
+
+# Python (if any tooling is added)
+__pycache__/
+*.pyc
+.venv/
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo

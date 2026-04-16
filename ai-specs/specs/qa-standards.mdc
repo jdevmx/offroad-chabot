@@ -1,0 +1,192 @@
+---
+description: QA standards, testing strategy, coverage requirements, and quality gates for the {{PROJECT_NAME}} project, including agent behavior configuration for automated quality assurance
+globs: ["{{QA_SRC_PATH}}/**/*.{ts,tsx,js,jsx,py,go}", "**/*.test.{ts,tsx,js,jsx}", "**/*.spec.{ts,tsx,js,jsx}", "**/*.e2e.{ts,js}"]
+alwaysApply: false
+---
+
+# QA Standards and Best Practices
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Test Strategy](#test-strategy)
+  - [Scope](#scope)
+  - [Test Types](#test-types)
+  - [Coverage Requirements](#coverage-requirements)
+- [Test Framework](#test-framework)
+- [QA Agent Behavior](#qa-agent-behavior)
+  - [Bug Reporting](#bug-reporting)
+  - [Auto-Fix Policy](#auto-fix-policy)
+  - [Report Format](#report-format)
+- [Quality Gates](#quality-gates)
+- [Naming Conventions](#naming-conventions)
+- [Test Organization](#test-organization)
+- [CI/CD Integration](#cicd-integration)
+
+---
+
+## Overview
+
+This document defines the QA standards for **{{PROJECT_NAME}}**. All automated testing, manual test plans, and the QA agent behavior must comply with the rules below.
+
+**Primary test framework:** `{{QA_TEST_FRAMEWORK}}`
+**Coverage threshold:** `{{QA_COVERAGE_THRESHOLD}}`
+**QA scope:** `{{QA_SCOPE}}`
+
+---
+
+## Test Strategy
+
+### Scope
+
+The QA scope (`{{QA_SCOPE}}`) determines which test layers are active:
+
+| Scope value | Layers covered |
+|-------------|---------------|
+| `all`       | Unit + Integration + E2E |
+| `backend`   | Unit + Integration (backend only) |
+| `frontend`  | Unit + Component + E2E (frontend only) |
+| `e2e`       | End-to-end tests only |
+| `unit`      | Unit tests only |
+
+Focus areas for this project: `{{QA_FOCUS_AREAS}}`
+
+### Test Types
+
+#### Unit Tests
+- Test a single function, class, or component in isolation
+- Mock all external dependencies (databases, APIs, external services)
+- Fast to run — no I/O or network calls
+- Located alongside the source file (e.g., `user.service.test.ts` next to `user.service.ts`)
+
+#### Integration Tests
+- Test multiple units together (e.g., service + repository)
+- May hit a real database (test database or in-memory)
+- Verify contracts between layers
+- Located in a dedicated `tests/integration/` folder
+
+#### End-to-End (E2E) Tests
+- Test full user flows through the running application
+- Use `{{QA_TEST_FRAMEWORK}}` to drive the browser or API
+- Cover the critical paths first (happy path + key error cases)
+- Located in `tests/e2e/` or `e2e/`
+
+### Coverage Requirements
+
+- **Minimum threshold:** `{{QA_COVERAGE_THRESHOLD}}`
+- Coverage is measured on: statements, branches, functions, lines
+- Coverage reports are generated on every CI run
+- PRs that drop coverage below the threshold are **blocked** (see [Quality Gates](#quality-gates))
+- Exclude from coverage: generated files, migrations, seed scripts, type-only files
+
+---
+
+## Test Framework
+
+**Framework:** `{{QA_TEST_FRAMEWORK}}`
+
+Follow the framework's idiomatic patterns. Key conventions:
+
+- **Arrange–Act–Assert (AAA)**: Structure every test with a clear setup, action, and assertion block separated by blank lines
+- **One assertion per test** (preferred): Each test should verify one specific behavior
+- **Descriptive test names**: Names must read as a sentence — `"should return 404 when user is not found"` not `"test user not found"`
+- **No magic values**: Use named constants or factory helpers for test data
+- **No `test.only` or `test.skip` in committed code** unless paired with a tracking ticket
+
+---
+
+## QA Agent Behavior
+
+The QA agent (`qa-engineer`) is configured via `openspec/config.yaml` under the `qa` section. The following settings control its behavior:
+
+### Bug Reporting
+
+When the QA agent finds a bug or failing assertion, it **always** creates a structured bug report. Format: `{{QA_REPORT_FORMAT}}`.
+
+Bug report fields:
+- **ID** — sequential within the session (BUG-001, BUG-002, …)
+- **Severity** — `critical | high | medium | low`
+- **Summary** — one sentence describing the failure
+- **Steps to reproduce** — numbered list
+- **Expected result**
+- **Actual result**
+- **Affected file(s)** — with line numbers
+- **Suggested fix** — brief description (even when `auto_fix_bugs` is false)
+
+### Auto-Fix Policy
+
+`auto_fix_bugs`: `{{QA_AUTO_FIX_BUGS}}`
+
+| Value   | Behavior |
+|---------|----------|
+| `true`  | Agent attempts to fix the bug immediately after reporting it. It confirms the fix by re-running the failing test(s). If the fix fails after one attempt it stops and escalates to the user. |
+| `false` | Agent reports the bug and stops. It never modifies source code without explicit user instruction. |
+
+**Regardless of this setting**, the agent never:
+- Deletes tests to make coverage pass
+- Weakens assertions to silence failures
+- Skips tests (`test.skip`) without a linked ticket
+
+### Report Format
+
+`report_format`: `{{QA_REPORT_FORMAT}}`
+
+| Value      | Output |
+|------------|--------|
+| `markdown` | Inline markdown in the chat response + a `.qa-report.md` file in the project root |
+| `json`     | A `.qa-report.json` file in the project root (machine-readable, good for CI) |
+| `both`     | Both markdown and JSON outputs |
+
+---
+
+## Quality Gates
+
+The following checks must pass before a PR can be merged:
+
+1. **Coverage** — must meet or exceed `{{QA_COVERAGE_THRESHOLD}}`
+2. **All tests green** — zero failing tests; flaky tests must be quarantined with a ticket
+3. **No new `test.skip` / `test.only`** — automated lint rule enforced in CI
+4. **Bug report resolved** — if the QA agent raised a `critical` or `high` severity bug, it must be fixed or explicitly accepted (with a comment) before merge
+
+---
+
+## Naming Conventions
+
+| Artifact | Convention | Example |
+|----------|-----------|---------|
+| Unit test file | `<subject>.test.<ext>` | `user.service.test.ts` |
+| Integration test file | `<subject>.integration.test.<ext>` | `user.repo.integration.test.ts` |
+| E2E test file | `<subject>.e2e.<ext>` | `login-flow.e2e.ts` |
+| Test suite (`describe`) | Noun phrase matching the unit under test | `"UserService"` |
+| Test case (`it`/`test`) | `"should <verb> <condition>"` | `"should return 401 when token is expired"` |
+| Test helper/factory | `create<Entity>` or `make<Entity>` | `createUser()`, `makeOrder()` |
+| Mock/stub variable | `mock<Dependency>` | `mockUserRepository` |
+
+---
+
+## Test Organization
+
+```
+<project-root>/
+├── src/                          # Source code
+│   └── <module>/
+│       ├── <module>.service.ts
+│       └── <module>.service.test.ts   # Unit tests co-located
+├── tests/
+│   ├── integration/               # Integration tests
+│   │   └── <module>.integration.test.ts
+│   └── e2e/                       # End-to-end tests
+│       └── <flow>.e2e.ts
+└── .qa-report.md                  # Generated by QA agent (gitignored or committed per team preference)
+```
+
+---
+
+## CI/CD Integration
+
+- Run unit tests on every push
+- Run integration tests on PR and main branch pushes
+- Run E2E tests on main branch pushes and release branches
+- Publish coverage reports as CI artifacts
+- Fail the pipeline if coverage drops below `{{QA_COVERAGE_THRESHOLD}}`
+- Post QA agent report as a PR comment when `report_format` includes `markdown`

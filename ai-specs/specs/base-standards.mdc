@@ -1,0 +1,50 @@
+---
+description: This document contains all development rules and guidelines for this project, applicable to all AI agents (Claude, Cursor, Codex, Gemini, etc.).
+alwaysApply: true
+---
+
+## 1. Core Principles
+
+- **Small tasks, one at a time**: Always work in baby steps, one at a time. Never go forward more than one step.
+- **Test-Driven Development**: Start with failing tests for any new functionality (TDD), according to the task details.
+- **Type Safety**: All code must be fully typed.
+- **Clear Naming**: Use clear, descriptive names for all variables and functions.
+- **Incremental Changes**: Prefer incremental, focused changes over large, complex modifications.
+- **Question Assumptions**: Always question assumptions and inferences.
+- **Pattern Detection**: Detect and highlight repeated code patterns.
+- **Keep It Simple**: Avoid over-engineering. Implement only what is needed for the current task. No speculative abstractions, unnecessary layers, premature optimizations, or future-proofing that is not explicitly required.
+- **No AI Metadata in Comments**: Never include AI model names, versions, tool names, generation timestamps, or any other AI-related information in code comments, docstrings, or commit messages.
+
+## 2. Language Standards
+
+- **English Only**: All technical artifacts must always use English, including:
+    - Code (variables, functions, classes, comments, error messages, log messages)
+    - Documentation (README, guides, API docs)
+    - {{TICKET_SYSTEM}} tickets (titles, descriptions, comments)
+    - Data schemas and database names
+    - Configuration files and scripts
+    - Git commit messages
+    - Test names and descriptions
+
+## 3. Git Branch Strategy
+
+Before starting any implementation (backend, frontend, infrastructure, AI agents, MCP servers, or any other work):
+
+1. Checkout `main` and run `git pull origin main` to ensure it is up to date
+2. Create and checkout a new branch named `<TICKET_ID>-<short-description>`, where:
+   - `<TICKET_ID>` is the ticket number (e.g. `TASK-001`, `SCRUM-42`)
+   - `<short-description>` is a lowercase, hyphen-separated summary of the work (e.g. `add-user-auth`, `fix-login-redirect`)
+   - Full example: `TASK-001-add-user-auth`
+
+This rule applies universally to every `/develop-*` command and any ad-hoc implementation task.
+
+## 4. Specific standards
+
+For detailed standards and guidelines specific to different areas of the project, refer to:
+
+- [Backend Standards](./backend-standards.mdc) - API development, database patterns, testing, security and backend best practices
+- [Frontend Standards](./frontend-standards.mdc) - React components, UI/UX guidelines, and frontend architecture
+- [Documentation Standards](./documentation-standards.mdc) - Technical documentation structure, formatting, and maintenance guidelines, including AI standards like this document
+- [Infrastructure Standards](./infrastructure-standards.mdc) - IaC folder structure, security, networking, state management, and Well-Architected practices
+- [Workflow Guide](./workflow-guide.md) - How to use this template: standard flow, command reference, and key principles for agents
+{{ADDITIONAL_STANDARDS}}

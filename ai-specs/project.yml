@@ -1,0 +1,124 @@
+# ─── Project configuration ───────────────────────────────────────────────────
+# Single source of truth for the entire ai-specs template.
+#
+# How to use:
+#   1. Fill in the project section and the sections matching your types
+#   2. Run /setup-project to apply values across all spec files
+# ─────────────────────────────────────────────────────────────────────────────
+
+project:
+  name: "{{PROJECT_NAME}}"               # e.g., "MyApp", "LTI", "Acme Platform"
+  description: "{{PROJECT_DESCRIPTION}}" # e.g., "Recruitment tracking system"
+  ticket_system: "{{TICKET_SYSTEM}}"     # "Jira", "Linear", "GitHub Issues", "Shortcut", "local"
+
+  # List all the types that describe your project (one or more):
+  #   fullstack       — backend API + frontend UI
+  #   backend-only    — API/service, no frontend
+  #   frontend-only   — UI only, calls external APIs
+  #   mcp-server      — Model Context Protocol server
+  #   ai-agent        — Autonomous AI agent / multi-agent system
+  #   infrastructure  — IaC for cloud resources (can combine with any other type)
+  types:
+    - "{{PROJECT_TYPE}}"        # e.g., - backend-only
+                                #        - mcp-server
+                                #        - ai-agent
+                                #        - infrastructure
+
+  # AI tools used in this project. claude is the default when list is empty.
+  # Supported: claude, cursor, windsurf, copilot, gemini, kiro
+  # Run ./ai-specs/init.sh after changing this list.
+  copilots:
+    - claude
+    - kiro
+
+  # ── Workflow automation ───────────────────────────────────────────────────
+  # Control which steps are automated at the end of /develop-backend and
+  # /develop-frontend. Disable to reduce AI token usage or to keep manual
+  # control over commits and PRs.
+  workflow:
+    auto_commit: false   # Stage and commit changes after implementation
+    auto_pr: false       # Push branch and open a PR after committing
+
+# =============================================================================
+# Backend — required when types includes: fullstack, backend-only
+# =============================================================================
+backend:
+  runtime: "{{BACKEND_RUNTIME}}"               # "Node.js", "Python", "Go", "Java", "Ruby"
+  language: "{{BACKEND_LANGUAGE}}"             # "TypeScript", "JavaScript", "Python", "Go"
+  framework: "{{BACKEND_FRAMEWORK}}"           # "Express", "Fastify", "NestJS", "Django", "FastAPI", "Gin"
+  orm: "{{BACKEND_ORM}}"                       # "Prisma", "TypeORM", "SQLAlchemy", "GORM", "none"
+  database: "{{BACKEND_DATABASE}}"             # "PostgreSQL", "MySQL", "MongoDB", "SQLite", "none"
+  test_framework: "{{BACKEND_TEST_FRAMEWORK}}" # "Jest", "Vitest", "pytest", "Go test", "RSpec"
+  test_coverage: "{{BACKEND_TEST_COVERAGE}}"   # "90%", "80%", "75%"
+  architecture: "{{BACKEND_ARCHITECTURE}}"     # "DDD", "MVC", "Clean Architecture", "Hexagonal"
+  src_path: "{{BACKEND_SRC_PATH}}"             # "backend/src", "src", "app", "api"
+
+# =============================================================================
+# Frontend — required when types includes: fullstack, frontend-only
+# =============================================================================
+frontend:
+  framework: "{{FRONTEND_FRAMEWORK}}"           # "React", "Vue", "Next.js", "Angular", "Svelte"
+  language: "{{FRONTEND_LANGUAGE}}"             # "TypeScript", "JavaScript"
+  build_tool: "{{FRONTEND_BUILD_TOOL}}"         # "Vite", "Create React App", "Next.js", "Webpack"
+  router: "{{FRONTEND_ROUTER}}"                 # "React Router DOM", "Vue Router", "Next.js App Router"
+  ui_library: "{{FRONTEND_UI_LIBRARY}}"         # "Bootstrap", "Tailwind CSS", "Material UI", "shadcn/ui"
+  http_client: "{{FRONTEND_HTTP_CLIENT}}"             # "Axios", "fetch", "TanStack Query", "SWR"
+  state_management: "{{FRONTEND_STATE_MANAGEMENT}}"   # "Redux", "Redux Toolkit", "Zustand", "none"
+  test_framework: "{{FRONTEND_TEST_FRAMEWORK}}"       # "Cypress", "Playwright", "Vitest", "Jest"
+  src_path: "{{FRONTEND_SRC_PATH}}"                   # "frontend/src", "src", "app"
+
+# =============================================================================
+# MCP Server — required when types includes: mcp-server
+# =============================================================================
+mcp:
+  runtime: "{{MCP_RUNTIME}}"               # "Node.js", "Python", "Go"
+  language: "{{MCP_LANGUAGE}}"             # "TypeScript", "Python", "Go"
+  transport: "{{MCP_TRANSPORT}}"           # "stdio", "HTTP/SSE", "both"
+  sdk: "{{MCP_SDK}}"                       # "@modelcontextprotocol/sdk", "mcp", "fastmcp"
+  tools: "{{MCP_TOOLS}}"                   # comma-separated tools exposed, e.g., "search, read_file"
+  resources: "{{MCP_RESOURCES}}"           # comma-separated resources, e.g., "file:///, db://"
+  test_framework: "{{MCP_TEST_FRAMEWORK}}" # "Jest", "Vitest", "pytest"
+
+# =============================================================================
+# AI Agent — required when types includes: ai-agent
+# =============================================================================
+agent:
+  framework: "{{AGENT_FRAMEWORK}}"             # "Claude Agent SDK", "LangChain", "CrewAI", "AutoGen", "custom"
+  language: "{{AGENT_LANGUAGE}}"               # "TypeScript", "Python"
+  model: "{{AGENT_MODEL}}"                     # "claude-opus-4-6", "claude-sonnet-4-6", "gpt-4o"
+  orchestration: "{{AGENT_ORCHESTRATION}}"     # "single-agent", "multi-agent", "hierarchical"
+  memory: "{{AGENT_MEMORY}}"                   # "none", "in-memory", "vector-db", "file"
+  tools: "{{AGENT_TOOLS}}"                     # comma-separated tools, e.g., "web_search, code_execution"
+  test_framework: "{{AGENT_TEST_FRAMEWORK}}"   # "Jest", "pytest", "Vitest"
+
+# =============================================================================
+# QA — optional, add "qa" to types to enable the QA agent and standards
+# =============================================================================
+# qa:
+#   test_framework: "{{QA_TEST_FRAMEWORK}}"   # "Playwright", "Cypress", "Jest", "Vitest", "pytest", "Go test"
+#   coverage_threshold: "{{QA_COVERAGE_THRESHOLD}}" # "90%", "80%", "75%"
+#   scope: "{{QA_SCOPE}}"                     # "all", "backend", "frontend", "e2e", "unit"
+#   focus_areas: "{{QA_FOCUS_AREAS}}"         # e.g., "auth, payments, user-profile"
+#   src_path: "{{QA_SRC_PATH}}"               # root path for coverage globs, e.g., "src", "backend/src"
+#   test_command: "{{QA_TEST_COMMAND}}"        # e.g., "npm run test:coverage", "pytest --cov"
+#
+#   # ── Agent behavior ───────────────────────────────────────────────────────
+#   # Controls how the qa-engineer agent acts during automated QA sessions.
+#   agent_behavior:
+#     auto_fix_bugs: false   # true  → agent fixes bugs it finds and re-runs tests
+#                            # false → agent reports bugs only; never modifies source code
+#     report_format: "markdown"  # "markdown" | "json" | "both"
+#                                # markdown → .qa-report.md + inline chat summary
+#                                # json     → .qa-report.json (CI-friendly)
+#                                # both     → both files generated
+
+# =============================================================================
+# Infrastructure — optional, add "infrastructure" to types to enable
+# =============================================================================
+# infrastructure:
+#   iac_tool: "{{IAC_TOOL}}"                     # "Terraform", "AWS CDK", "Pulumi", "Bicep", "CloudFormation"
+#   cloud_provider: "{{CLOUD_PROVIDER}}"         # "AWS", "GCP", "Azure", "multi-cloud"
+#   state_backend: "{{IAC_STATE_BACKEND}}"       # "S3 + DynamoDB", "Terraform Cloud", "GCS", "Azure Blob"
+#   secrets_manager: "{{SECRETS_MANAGER}}"       # "AWS Secrets Manager", "HashiCorp Vault", "GCP Secret Manager"
+#   cicd_platform: "{{CICD_PLATFORM}}"           # "GitHub Actions", "GitLab CI", "CircleCI", "Jenkins"
+#   container_registry: "{{CONTAINER_REGISTRY}}" # "ECR", "GCR", "ACR", "DockerHub", "none"

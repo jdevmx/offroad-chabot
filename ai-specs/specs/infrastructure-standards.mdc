@@ -1,0 +1,459 @@
+---
+description: Infrastructure as Code (IaC) standards, best practices, and conventions for the {{PROJECT_NAME}} infrastructure using {{IAC_TOOL}} including folder structure, security, networking, state management, and Well-Architected practices
+globs: ["infrastructure/**/*.{tf,hcl,ts,py,yaml,yml,json}", "infrastructure/**/*.tfvars", ".github/workflows/infra*.{yml,yaml}"]
+alwaysApply: true
+---
+
+# Infrastructure as Code Standards and Best Practices
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Technology Stack](#technology-stack)
+- [Folder Structure](#folder-structure)
+- [Naming Conventions](#naming-conventions)
+- [Tagging Strategy](#tagging-strategy)
+- [State Management](#state-management)
+- [Environment Management](#environment-management)
+- [Module Design](#module-design)
+- [Security Best Practices](#security-best-practices)
+  - [Identity and Access Management](#identity-and-access-management)
+  - [Network Security](#network-security)
+  - [Secrets Management](#secrets-management)
+  - [Encryption](#encryption)
+  - [Compliance and Auditing](#compliance-and-auditing)
+- [Well-Architected Framework](#well-architected-framework)
+  - [Operational Excellence](#operational-excellence)
+  - [Security](#security)
+  - [Reliability](#reliability)
+  - [Performance Efficiency](#performance-efficiency)
+  - [Cost Optimization](#cost-optimization)
+  - [Sustainability](#sustainability)
+- [Testing Infrastructure Code](#testing-infrastructure-code)
+- [CI/CD for Infrastructure](#cicd-for-infrastructure)
+- [Documentation Standards](#documentation-standards)
+- [Development Workflow](#development-workflow)
+
+---
+
+## Overview
+
+This document outlines the best practices, conventions, and standards for managing the **{{PROJECT_NAME}}** infrastructure using Infrastructure as Code (IaC). All infrastructure must be version-controlled, peer-reviewed, and deployed through automated pipelines. Manual changes to any environment are strictly prohibited.
+
+## Technology Stack
+
+- **IaC Tool**: {{IAC_TOOL}} (e.g., Terraform, AWS CDK, Pulumi)
+- **Cloud Provider**: {{CLOUD_PROVIDER}} (e.g., AWS, GCP, Azure)
+- **State Backend**: {{IAC_STATE_BACKEND}} (e.g., S3 + DynamoDB, Terraform Cloud, GCS)
+- **Secret Management**: {{SECRETS_MANAGER}} (e.g., AWS Secrets Manager, HashiCorp Vault)
+- **CI/CD Platform**: {{CICD_PLATFORM}} (e.g., GitHub Actions, GitLab CI)
+- **Container Registry**: {{CONTAINER_REGISTRY}} (optional, e.g., ECR, GCR, ACR)
+
+---
+
+## Folder Structure
+
+All infrastructure code lives under the `infrastructure/` directory at the repository root.
+
+```
+infrastructure/
+├── modules/                    # Reusable, self-contained infrastructure modules
+│   ├── networking/             # VPC, subnets, route tables, peering
+│   ├── compute/                # EC2, ECS, Lambda, GKE, etc.
+│   ├── database/               # RDS, DynamoDB, Cloud SQL, etc.
+│   ├── storage/                # S3, GCS, Azure Blob, etc.
+│   ├── security/               # IAM roles, policies, KMS keys, WAF
+│   ├── observability/          # CloudWatch, Datadog, logging, alerting
+│   └── dns/                    # Route53, Cloud DNS, domain management
+├── environments/               # Per-environment root configurations
+│   ├── dev/
+│   │   ├── main.tf             # (or main.ts / __main__.py)
+│   │   ├── variables.tf
+│   │   ├── outputs.tf
+│   │   └── terraform.tfvars    # Non-secret variable values only
+│   ├── staging/
+│   │   └── ...
+│   └── prod/
+│       └── ...
+├── global/                     # Resources shared across all environments
+│   ├── iam/                    # Cross-account roles, OIDC providers
+│   ├── dns/                    # Apex domain, delegated zones
+│   └── state/                  # Remote state backend bootstrap
+├── scripts/                    # Helper shell/Python scripts for infra tasks
+├── docs/                       # Architecture diagrams, runbooks, ADRs
+├── tests/                      # Infrastructure unit and integration tests
+│   ├── unit/
+│   └── integration/
+└── .tool-versions              # Pin tool versions (tfenv, cdktf, etc.)
+```
+
+**Rules:**
+- Every environment directory is a fully independent root — no symlinks between environment configs.
+- Modules are versioned and sourced by environments; environments never copy-paste module code.
+- The `global/` directory is for truly cross-environment resources only; keep it minimal.
+- Never commit `.terraform/`, `node_modules/`, `cdk.out/`, or `.pulumi/` directories.
+
+---
+
+## Naming Conventions
+
+All resource names must be predictable, readable, and sortable. Use the following pattern:
+
+```
+{project}-{environment}-{component}-{resource-type}[-{disambiguator}]
+```
+
+**Examples:**
+```
+myapp-prod-api-sg               # Security group for the API in production
+myapp-dev-db-subnet-group       # DB subnet group in dev
+myapp-staging-web-alb           # ALB for web in staging
+myapp-prod-user-data-s3         # S3 bucket for user data in production
+```
+
+**Rules:**
+- Use lowercase letters, numbers, and hyphens only.
+- No underscores (they are inconsistent across cloud providers).
+- Maximum 63 characters to fit DNS-compatible names.
+- The environment segment must always be present — no implicit defaults.
+- Resource type suffix must match the official AWS/GCP/Azure resource abbreviation.
+
+**Common Resource Abbreviations:**
+
+| Resource | Abbreviation |
+|---|---|
+| Security Group | `sg` |
+| Application Load Balancer | `alb` |
+| Network Load Balancer | `nlb` |
+| S3 Bucket | `s3` |
+| RDS Instance | `rds` |
+| Lambda Function | `fn` |
+| IAM Role | `role` |
+| IAM Policy | `policy` |
+| KMS Key | `key` |
+| VPC | `vpc` |
+| Subnet | `subnet` |
+| Route Table | `rt` |
+| ECS Cluster | `ecs` |
+| ECR Repository | `ecr` |
+| CloudWatch Log Group | `lg` |
+
+---
+
+## Tagging Strategy
+
+Every resource that supports tags **must** have the following mandatory tags:
+
+| Tag Key | Value | Description |
+|---|---|---|
+| `Project` | `{{PROJECT_NAME}}` | Project identifier |
+| `Environment` | `dev` / `staging` / `prod` | Deployment environment |
+| `Component` | e.g., `api`, `database`, `networking` | Functional component |
+| `ManagedBy` | `terraform` / `cdk` / `pulumi` | IaC tool managing the resource |
+| `Owner` | Team or squad name | Ownership for cost allocation |
+| `CostCenter` | Cost center code | FinOps / billing allocation |
+
+Optional but recommended tags:
+
+| Tag Key | Value |
+|---|---|
+| `Repository` | GitHub/GitLab repo URL |
+| `CreatedAt` | ISO 8601 date |
+| `DataClassification` | `public`, `internal`, `confidential`, `restricted` |
+
+**Rules:**
+- Define a `locals` block (or equivalent) with all mandatory tags and merge it into every resource.
+- Tag enforcement must be implemented via cloud policy (AWS SCP, GCP Organization Policy, Azure Policy).
+- Untagged resources in production trigger an automated alert.
+
+---
+
+## State Management
+
+- **Remote state is mandatory** — local state is only allowed for the bootstrap (`global/state/`) step.
+- State backend must have versioning and point-in-time recovery enabled.
+- State locking must be enabled to prevent concurrent modifications (e.g., DynamoDB for Terraform S3 backend).
+- State files are environment-specific: each environment has its own isolated state file.
+- **Never** store secrets or sensitive values in state — use data sources or secret references at plan/apply time.
+- State access is controlled via IAM: CI/CD roles have write access; developers have read-only access.
+- State encryption at rest is required (SSE-S3 minimum, SSE-KMS preferred).
+
+**Example state key structure (Terraform S3):**
+```
+s3://myapp-infra-state/environments/prod/terraform.tfstate
+s3://myapp-infra-state/environments/staging/terraform.tfstate
+s3://myapp-infra-state/global/iam/terraform.tfstate
+```
+
+---
+
+## Environment Management
+
+Three standard environments exist. Each environment is isolated — no shared resources, no shared networking, no shared IAM across environments.
+
+| Environment | Purpose | Auto-Deploy | Approval Required |
+|---|---|---|---|
+| `dev` | Feature development and integration | Yes (on merge to `main`) | No |
+| `staging` | Pre-production validation, load testing | Yes (on merge to `main`) | No |
+| `prod` | Production traffic | No | Yes (manual gate) |
+
+**Rules:**
+- Production environments must be deployed from tagged releases only, never from branch commits.
+- `dev` and `staging` can be destroyed and recreated on demand.
+- Cross-environment access (e.g., `dev` reading `prod` data) is prohibited at the IAM level.
+- Each environment must have its own separate cloud account (or project/subscription) to enforce blast-radius isolation.
+
+---
+
+## Module Design
+
+Modules encapsulate a logical unit of infrastructure. Each module must:
+
+1. **Have a single, clear responsibility** — one module for networking, one for compute, etc. No "catch-all" modules.
+2. **Expose explicit inputs and outputs** — no hard-coded values inside modules; all configuration comes through variables.
+3. **Be versioned** — modules are referenced by version tag, not by branch or local path in non-dev environments.
+4. **Include a `README.md`** — describing purpose, inputs, outputs, and usage example.
+5. **Be independently testable** — unit tests must not require a full environment to run.
+
+**Module interface rules:**
+- Variables must have descriptions and type constraints.
+- Sensitive variables must be marked `sensitive = true`.
+- Outputs must not expose secrets; expose ARNs/IDs only.
+- Default values are allowed only for optional configuration — never for security-relevant inputs (CIDR ranges, ports, account IDs).
+
+**Example module structure:**
+```
+modules/networking/
+├── main.tf
+├── variables.tf
+├── outputs.tf
+├── versions.tf          # Provider version constraints
+└── README.md
+```
+
+---
+
+## Security Best Practices
+
+### Identity and Access Management
+
+- **Least privilege by default**: every role and policy grants the minimum permissions required. Start with no permissions and add incrementally.
+- **No wildcard actions or resources** in production policies (`*` is forbidden except for conditions explicitly reviewed and documented).
+- **No long-lived credentials**: use OIDC federation for CI/CD, instance profiles for compute, workload identity for containers. Never use IAM users with access keys for automation.
+- **Service-to-service auth**: use IAM roles with resource-based policies, not shared secrets.
+- **Separation of duties**: infrastructure deployment role is separate from application runtime role.
+- **MFA enforcement**: require MFA for all human access to production accounts via SCPs.
+- **Permission boundaries**: apply permission boundaries to all dynamically created roles.
+- **Regular access reviews**: IAM roles not used in 90 days trigger an automated review alert.
+
+### Network Security
+
+- **No public access by default**: all resources launch in private subnets. Public-facing endpoints go behind a load balancer or CDN only.
+- **VPC design**:
+  - Separate subnets for public (load balancers), private (application), and isolated (database) tiers.
+  - Each tier in at least 2 availability zones.
+  - NAT Gateway per AZ for private-tier egress (no single NAT Gateway shared across AZs).
+- **Security groups**:
+  - Each service has its own security group — no sharing across services.
+  - Rules reference security group IDs, not CIDR blocks, for internal service-to-service traffic.
+  - `0.0.0.0/0` ingress is only allowed on port 443 on public-facing load balancers.
+  - Deny all egress is the default; add only required egress rules.
+- **VPC Flow Logs**: enabled on all VPCs, logs sent to centralized logging account.
+- **AWS WAF / Cloud Armor / Azure Front Door WAF**: mandatory on all public HTTP/S endpoints.
+- **PrivateLink / Private Service Connect**: use for accessing managed services (S3, DynamoDB, RDS) without internet traversal.
+- **No SSH/RDP open to the internet**: use Systems Manager Session Manager, IAP, or Bastion Host with MFA.
+
+### Secrets Management
+
+- **Zero secrets in code**: no passwords, API keys, tokens, certificates, or connection strings in source code, IaC templates, CI/CD environment variables, or state files.
+- **Use the designated secrets manager** ({{SECRETS_MANAGER}}) for all secrets at rest.
+- **Secret rotation**: all secrets must have automated rotation enabled where supported.
+- **Secret injection at runtime**: secrets are fetched by the application at startup, never baked into AMIs, containers, or deployment artifacts.
+- **Audit trail**: every secret access is logged; alerts fire on anomalous access patterns.
+- **Short-lived credentials**: prefer dynamic secrets (Vault, RDS IAM auth) over static credentials.
+
+### Encryption
+
+- **Encryption at rest**: mandatory for all storage (S3, EBS, RDS, DynamoDB, GCS, Azure Disk) using customer-managed keys (CMK).
+- **Encryption in transit**: TLS 1.2 minimum, TLS 1.3 preferred, on all internal and external connections. Enforce via security policy, not just configuration.
+- **Key management**:
+  - Each service has its own KMS key — no shared keys across services.
+  - Key rotation enabled (annual minimum, 90-day preferred).
+  - Key access is restricted to the specific service IAM role.
+  - Key deletion requires 7-day waiting period minimum.
+- **S3 bucket policies**: `aws:SecureTransport` condition enforced on all buckets to deny HTTP access.
+- **Database encryption**: enable SSL/TLS enforcement at the database parameter group level, not just the connection string.
+
+### Compliance and Auditing
+
+- **CloudTrail / Cloud Audit Logs / Azure Monitor**: enabled in all regions, all accounts, with log file validation.
+- **Config Rules / Security Command Center / Microsoft Defender**: enforce guardrails via cloud-native policy engines.
+- **GuardDuty / Security Health Analytics**: threat detection enabled on all accounts.
+- **Immutable audit logs**: logs stored in a dedicated logging account with object lock (WORM) enabled.
+- **Alerts**: critical security events (root login, policy change, public S3 bucket, SG wide-open) trigger PagerDuty/OpsGenie within 5 minutes.
+
+---
+
+## Well-Architected Framework
+
+### Operational Excellence
+
+- All infrastructure changes go through version control and peer review — no console-driven changes.
+- Runbooks for common operational procedures are stored in `infrastructure/docs/runbooks/`.
+- IaC plans are reviewed before apply — `terraform plan` / `cdk diff` output is posted to the pull request.
+- Changes are deployed incrementally; large destructive changes require a dedicated maintenance window.
+- Post-incident reviews produce action items tracked in the project issue tracker.
+- Dashboards and alerts defined as code (e.g., CloudWatch Dashboard JSON, Datadog Terraform provider).
+
+### Security
+
+Refer to the [Security Best Practices](#security-best-practices) section above. Additionally:
+- Security reviews are part of the pull request checklist for infrastructure changes.
+- Automated security scanning (tfsec, Checkov, KICS) runs in CI on every PR.
+- Penetration testing is conducted at least annually on production environments.
+
+### Reliability
+
+- **Multi-AZ deployments**: all stateful services (databases, caches, message queues) run across at least 2 AZs in production.
+- **Auto-scaling**: compute resources have auto-scaling policies based on meaningful metrics (CPU, request count, queue depth), not time-of-day schedules.
+- **Health checks**: all services expose health check endpoints; load balancers and orchestrators use them.
+- **Circuit breakers and retries**: implemented at the application layer, not the infrastructure layer.
+- **Backups**:
+  - Automated daily backups for all databases with at least 7-day retention in `dev`/`staging`, 30-day in `prod`.
+  - Backup restoration is tested monthly in a non-production environment.
+  - Cross-region backup replication for production data.
+- **Disaster recovery**:
+  - RTO and RPO defined and documented for each critical service.
+  - DR runbooks tested at least annually.
+  - Use IaC to enable rapid environment recreation in a secondary region.
+- **Chaos engineering**: intentional failure injection in `staging` to validate resilience (e.g., AZ termination, network partition simulation).
+
+### Performance Efficiency
+
+- Right-size resources using monitoring data — do not over-provision "just in case".
+- Use managed services over self-managed whenever operationally sound (RDS over self-managed Postgres, ElastiCache over self-managed Redis).
+- CDN in front of all static assets and cacheable API responses.
+- Database connection pooling (PgBouncer, RDS Proxy) for Lambda or high-concurrency workloads.
+- Review and optimize resource sizes at least quarterly using cloud provider recommendations (AWS Compute Optimizer, GCP Recommender).
+
+### Cost Optimization
+
+- Budgets and alerts configured for each environment account.
+- Reserved Instances / Savings Plans / Committed Use Discounts applied to stable production workloads.
+- Unused resources (idle EC2, unattached EBS, old snapshots, unused Elastic IPs) are cleaned up automatically via Lambda/Cloud Function scheduled jobs.
+- `dev` and `staging` non-critical resources are scheduled to shut down outside business hours.
+- Cost anomaly detection enabled; alerts fire when spend deviates > 20% from the 7-day average.
+- Tags are the source of truth for cost attribution — untagged resources are flagged daily.
+
+### Sustainability
+
+- Prefer managed and serverless services — they pack workloads more efficiently across shared hardware.
+- Deploy in regions with higher renewable energy availability when latency constraints allow.
+- Right-size aggressively — idle capacity has a carbon cost.
+- Implement data lifecycle policies (S3 Intelligent Tiering, object expiration) to avoid storing data that is no longer needed.
+
+---
+
+## Testing Infrastructure Code
+
+Infrastructure code must be tested like application code.
+
+### Linting and Static Analysis
+
+Run on every pull request:
+- **tfsec** or **Checkov**: security misconfiguration scanning.
+- **tflint** / native linter: style and deprecated syntax.
+- **terraform validate** / `cdk synth` / `pulumi preview`: confirm the code is syntactically valid.
+
+### Unit Tests
+
+- Test individual modules in isolation using mock providers or synthesized output inspection.
+- Tools: `terraform-compliance`, `OPA/Conftest` (policy-as-code), CDK `assertions` library, Pulumi unit tests.
+- Unit tests must not require real cloud credentials to run.
+- Every module must have at least one unit test covering the happy path and one for a rejected security misconfiguration.
+
+### Integration Tests
+
+- Spin up a real environment (typically `dev` account) and validate actual resource behavior.
+- Tools: Terratest (Go), `awspec` (Ruby), `pytest` with `boto3`.
+- Teardown is always performed after the test run, even on failure.
+- Integration tests run in CI on PRs to the `main` branch; blocked from merging on failure.
+
+### Drift Detection
+
+- Scheduled CI job runs `terraform plan` / `cdk diff` against all environments daily.
+- Any detected drift generates a ticket and notifies the infrastructure team immediately.
+- Drift in production is treated as a P1 incident.
+
+---
+
+## CI/CD for Infrastructure
+
+```
+PR opened  →  lint + static analysis + unit tests  →  plan/diff (posted as PR comment)
+PR merged  →  apply dev  →  apply staging  →  manual approval gate  →  apply prod
+```
+
+**Rules:**
+- CI/CD pipelines run with the minimum IAM permissions required — no `AdministratorAccess` in pipelines.
+- Pipelines authenticate via OIDC (no static access keys stored in CI secrets).
+- `apply` to production is gated on at least one human approval in the PR and a passing staging deployment.
+- Failed applies must alert on-call and block subsequent applies until resolved.
+- Pipeline logs are retained for 90 days minimum.
+- Secrets needed by the pipeline are fetched from {{SECRETS_MANAGER}} at runtime — not stored in CI environment variables.
+
+---
+
+## Documentation Standards
+
+Every module and environment configuration must include:
+
+1. **README.md**: Purpose, inputs table, outputs table, and a usage example.
+2. **Architecture Diagram**: Stored in `infrastructure/docs/diagrams/` as a source file (e.g., Draw.io XML, Mermaid) and an exported PNG/SVG.
+3. **ADR (Architecture Decision Record)**: For any significant infrastructure decision, record it in `infrastructure/docs/adr/YYYY-MM-DD-title.md` using the MADR format.
+4. **Runbooks**: Step-by-step operational procedures in `infrastructure/docs/runbooks/`.
+
+**Inline comment rules:**
+- Comment the *why*, not the *what* — the code already shows what it does.
+- Document non-obvious security decisions and any deviation from these standards with a justification.
+- Deprecated resources must have a comment with the removal date and the tracking ticket.
+
+---
+
+## Development Workflow
+
+### Branch Strategy
+
+- `main`: represents the desired state of all environments.
+- Feature branches: `infra/short-description` (e.g., `infra/add-redis-cluster`).
+- No direct commits to `main` — all changes via pull request.
+
+### Pull Request Checklist
+
+Before merging, every infrastructure PR must:
+
+- [ ] Pass all linting and static analysis checks.
+- [ ] Pass all unit tests.
+- [ ] Include a `plan`/`diff` output in the PR description or as a CI comment.
+- [ ] Reference the ticket/issue being addressed.
+- [ ] Have at least one peer review from a team member with infrastructure experience.
+- [ ] Update or add module `README.md` if inputs/outputs changed.
+- [ ] Add or update an ADR if a significant architectural decision was made.
+- [ ] Confirm no secrets or sensitive values are present in the code or plan output.
+
+### Local Development
+
+- Use `.tool-versions` (asdf) or a `Makefile` to pin tool versions — all team members use the same versions.
+- `dev` environment is the only environment developers can `apply` directly from a local machine, with explicit approval.
+- Always run `plan`/`diff` before `apply` and review the output — never apply blindly.
+- Use workspaces or separate state keys to avoid colliding with team members' local development.
+
+### Makefile Targets (recommended)
+
+```makefile
+make lint          # Run all linters and static analysis
+make test          # Run unit tests
+make plan ENV=dev  # Generate and display plan for the specified environment
+make apply ENV=dev # Apply changes to the specified environment (requires confirmation)
+make destroy ENV=dev # Destroy the specified environment (requires double confirmation)
+```
