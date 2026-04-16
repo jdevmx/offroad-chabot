@@ -32,12 +32,11 @@ If neither exists, infer from the ticket:
 **If `ticket_system` is `local`**: update `ai-specs/tickets/$TICKET_ID.md`:
 - Set `status` to `in_progress`
 - Set `assignee` to the current git user (`git config user.name`)
-- Set `branch` to the branch name you are about to create
 - Move the entry in `ai-specs/tickets/TICKETS.md` from `## To Do` to `## In Progress`
 
-## 5. Create the implementation branch
+## 5. Ensure you are on main
 
-Checkout `main`, run `git pull origin main`, then create and checkout a new branch named `<TICKET_ID>-<short-description>` (e.g. `TASK-001-add-user-auth`).
+Confirm the current branch is `main`. Do not create feature branches — all work goes directly to `main`.
 
 ## 6. Implement
 
@@ -62,9 +61,9 @@ Run only the phases that apply based on step 3.
 
 **If `workflow.auto_commit` is `true`**: stage only the files affected by the ticket and create a descriptive commit message. Otherwise inform the user that committing was skipped (`auto_commit: false`).
 
-## 8. Pull request
+## 8. Push
 
-**If `workflow.auto_pr` is `true`**: push the branch and create a PR linked to the ticket ID. Otherwise inform the user that the PR was skipped (`auto_pr: false`).
+**If `workflow.auto_pr` is `true`**: push `main` to origin. PR creation is skipped — this is a prototype and all work is on `main`.
 
 ## 9. Close ticket
 

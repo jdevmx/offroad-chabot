@@ -26,17 +26,11 @@ alwaysApply: true
     - Git commit messages
     - Test names and descriptions
 
-## 3. Git Branch Strategy
+## 3. Git Strategy
 
-Before starting any implementation (backend, frontend, infrastructure, AI agents, MCP servers, or any other work):
+This is a prototype. All work is committed directly to `main` — no feature branches.
 
-1. Checkout `main` and run `git pull origin main` to ensure it is up to date
-2. Create and checkout a new branch named `<TICKET_ID>-<short-description>`, where:
-   - `<TICKET_ID>` is the ticket number (e.g. `TASK-001`, `SCRUM-42`)
-   - `<short-description>` is a lowercase, hyphen-separated summary of the work (e.g. `add-user-auth`, `fix-login-redirect`)
-   - Full example: `TASK-001-add-user-auth`
-
-This rule applies universally to every `/develop-*` command and any ad-hoc implementation task.
+Before starting any implementation, ensure you are on `main` and the working tree is clean.
 
 ## 4. Specific standards
 

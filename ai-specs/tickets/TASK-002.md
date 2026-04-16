@@ -2,7 +2,7 @@
 id: TASK-002
 title: "Frontend scaffold + single-page shell"
 type: feature
-status: in_progress
+status: done
 scope: frontend
 assignee: Jorge Dominguez
 created: 2026-04-16
