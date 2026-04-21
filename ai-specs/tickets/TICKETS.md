@@ -10,7 +10,6 @@ Do not edit the ticket entries manually — use `/create-ticket` to create new t
 ## To Do
 
 <!-- tickets with status: todo -->
-- **[TASK-011]** LangChain agent executor (Mistral + Tavily) _(feature · backend)_ — plan ready: `ai-specs/changes/TASK-011_backend.md`
 - **[TASK-012]** POST /chat endpoint (anon + authenticated) _(feature · backend)_ — plan ready: `ai-specs/changes/TASK-012_backend.md`
 - **[TASK-013]** Registration form (username check + vehicle + PIN) _(feature · frontend)_ — plan ready: `ai-specs/changes/TASK-013_frontend.md`
 - **[TASK-014]** Login form (username + PIN) _(feature · frontend)_ — plan ready: `ai-specs/changes/TASK-014_frontend.md`
@@ -26,6 +25,7 @@ Do not edit the ticket entries manually — use `/create-ticket` to create new t
 ## Done
 
 <!-- tickets with status: done -->
+- **[TASK-011]** LangChain agent executor (Mistral + Tavily) _(feature · backend)_ — plan ready: `ai-specs/changes/TASK-011_backend.md`
 - **[TASK-010]** System prompt builder (user + vehicle context) _(feature · backend)_ — plan ready: `ai-specs/changes/TASK-010_backend.md`
 - **[TASK-009]** Firestore conversation memory + summary compression _(feature · backend)_ — plan ready: `ai-specs/changes/TASK-009_backend.md`
 - **[TASK-008]** Tavily Search tool _(feature · backend)_ — plan ready: `ai-specs/changes/TASK-008_backend.md`

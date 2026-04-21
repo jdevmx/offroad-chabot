@@ -2,9 +2,9 @@
 id: TASK-011
 title: "Implement LangChain agent executor (Mistral + Tavily)"
 type: feature
-status: todo
+status: done
 scope: backend
-assignee: unassigned
+assignee: Jorge Dominguez
 created: 2026-04-16
 branch: ~
 plan_backend: ai-specs/changes/TASK-011_backend.md
