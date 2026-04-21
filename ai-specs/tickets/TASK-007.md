@@ -2,9 +2,9 @@
 id: TASK-007
 title: "Implement auth middleware (Firebase ID token verification)"
 type: feature
-status: todo
+status: done
 scope: backend
-assignee: unassigned
+assignee: Jorge Dominguez
 created: 2026-04-16
 branch: ~
 plan_backend: ai-specs/changes/TASK-007_backend.md

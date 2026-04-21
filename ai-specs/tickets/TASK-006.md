@@ -2,9 +2,9 @@
 id: TASK-006
 title: "Implement PIN auth backend (register, login, check-username, custom token)"
 type: feature
-status: todo
+status: done
 scope: backend
-assignee: unassigned
+assignee: Jorge Dominguez
 created: 2026-04-16
 branch: ~
 plan_backend: ai-specs/changes/TASK-006_backend.md

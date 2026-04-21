@@ -7,8 +7,8 @@ scope: frontend
 assignee: unassigned
 created: 2026-04-16
 branch: ~
-plan_backend: ~
-plan_frontend: ~
+plan_backend: ai-specs/changes/TASK-017_backend.md
+plan_frontend: ai-specs/changes/TASK-017_frontend.md
 ---
 
 ## Description

@@ -338,16 +338,16 @@ Tracks all planned specs with lifecycle dates. Updated as tickets move through t
 | TASK-003 | Firebase Admin SDK init + env validation | Backend | 2026-04-16 | 2026-04-16 | 2026-04-16 |
 | TASK-004 | Client repository (Firestore clients collection) | Backend | 2026-04-16 | 2026-04-16 | 2026-04-16 |
 | TASK-005 | Conversation repository (Firestore conversations collection) | Backend | 2026-04-16 | 2026-04-16 | 2026-04-16 |
-| TASK-006 | PIN auth backend (register, login, check-username, custom token) | Backend | 2026-04-16 | 2026-04-16 | — |
-| TASK-007 | Auth middleware (Firebase ID token verification) | Backend | 2026-04-16 | 2026-04-16 | — |
-| TASK-008 | Tavily Search tool | Agent | 2026-04-16 | 2026-04-16 | — |
-| TASK-009 | Firestore conversation memory + summary compression | Agent | 2026-04-16 | 2026-04-16 | — |
-| TASK-010 | System prompt builder (user + vehicle context) | Agent | 2026-04-16 | 2026-04-16 | — |
+| TASK-006 | PIN auth backend (register, login, check-username, custom token) | Backend | 2026-04-16 | 2026-04-16 | 2026-04-18 |
+| TASK-007 | Auth middleware (Firebase ID token verification) | Backend | 2026-04-16 | 2026-04-16 | 2026-04-20 |
+| TASK-008 | Tavily Search tool | Agent | 2026-04-16 | 2026-04-16 | 2026-04-21 |
+| TASK-009 | Firestore conversation memory + summary compression | Agent | 2026-04-16 | 2026-04-16 | 2026-04-21 |
+| TASK-010 | System prompt builder (user + vehicle context) | Agent | 2026-04-16 | 2026-04-16 | 2026-04-21 |
 | TASK-011 | LangChain agent executor (Mistral + Tavily) | Agent | 2026-04-16 | 2026-04-16 | — |
 | TASK-012 | POST /chat endpoint (anon + authenticated) | Backend | 2026-04-16 | 2026-04-16 | — |
 | TASK-013 | Registration form (username check + vehicle + PIN) | Frontend | 2026-04-16 | 2026-04-16 | — |
-| TASK-014 | Login form (username + PIN) | Frontend | 2026-04-16 | — | — |
-| TASK-015 | Left panel (auth toggle + user info) | Frontend | 2026-04-16 | — | — |
-| TASK-016 | Chat interface (message list + input + history load) | Frontend | 2026-04-16 | — | — |
-| TASK-017 | User profile view (vehicle display + edit modifications) | Frontend | 2026-04-16 | — | — |
-| TASK-018 | Deployment setup | Infra | 2026-04-16 | — | — |
+| TASK-014 | Login form (username + PIN) | Frontend | 2026-04-16 | 2026-04-18 | — |
+| TASK-015 | Implement left panel (auth toggle + user info) | Frontend | 2026-04-16 | 2026-04-18 | — |
+| TASK-016 | Chat interface (message list + input + history load) | Frontend | 2026-04-16 | 2026-04-20 | — |
+| TASK-017 | User profile view (vehicle display + edit modifications) | Frontend | 2026-04-16 | 2026-04-20 | — |
+| TASK-018 | Deployment setup | Infra | 2026-04-16 | 2026-04-20 | — |

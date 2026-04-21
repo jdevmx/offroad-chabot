@@ -8,7 +8,7 @@ assignee: unassigned
 created: 2026-04-16
 branch: ~
 plan_backend: ~
-plan_frontend: ~
+plan_frontend: ai-specs/changes/TASK-015_frontend.md
 ---
 
 ## Description

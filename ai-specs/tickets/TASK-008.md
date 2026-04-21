@@ -2,9 +2,9 @@
 id: TASK-008
 title: "Implement Tavily Search tool for the AI agent"
 type: feature
-status: todo
+status: done
 scope: backend
-assignee: unassigned
+assignee: Jorge Dominguez
 created: 2026-04-16
 branch: ~
 plan_backend: ai-specs/changes/TASK-008_backend.md

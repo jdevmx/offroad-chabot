@@ -25,7 +25,7 @@ describe('firebaseAdmin', () => {
   }
 
   function makeMock(appsInitial: unknown[] = []) {
-    const mockApp = { firestore: vi.fn(() => ({})) };
+    const mockApp = { firestore: vi.fn(() => ({})), auth: vi.fn(() => ({})) };
     const apps = [...appsInitial];
     const initializeApp = vi.fn(() => {
       apps.push(mockApp);
@@ -61,7 +61,8 @@ describe('firebaseAdmin', () => {
       credential: { cert: vi.fn() },
     }));
 
-    await expect(import('./firebaseAdmin')).rejects.toThrow('FIREBASE_PROJECT_ID');
+    const { getFirebaseAdmin } = await import('./firebaseAdmin');
+    expect(() => getFirebaseAdmin()).toThrow('FIREBASE_PROJECT_ID');
   });
 
   it('throws when FIREBASE_CLIENT_EMAIL is missing', async () => {
@@ -74,7 +75,8 @@ describe('firebaseAdmin', () => {
       credential: { cert: vi.fn() },
     }));
 
-    await expect(import('./firebaseAdmin')).rejects.toThrow('FIREBASE_CLIENT_EMAIL');
+    const { getFirebaseAdmin } = await import('./firebaseAdmin');
+    expect(() => getFirebaseAdmin()).toThrow('FIREBASE_CLIENT_EMAIL');
   });
 
   it('throws when FIREBASE_PRIVATE_KEY is missing', async () => {
@@ -87,7 +89,8 @@ describe('firebaseAdmin', () => {
       credential: { cert: vi.fn() },
     }));
 
-    await expect(import('./firebaseAdmin')).rejects.toThrow('FIREBASE_PRIVATE_KEY');
+    const { getFirebaseAdmin } = await import('./firebaseAdmin');
+    expect(() => getFirebaseAdmin()).toThrow('FIREBASE_PRIVATE_KEY');
   });
 
   it('throws listing all missing vars when multiple are absent', async () => {
@@ -101,14 +104,15 @@ describe('firebaseAdmin', () => {
       credential: { cert: vi.fn() },
     }));
 
-    await expect(import('./firebaseAdmin')).rejects.toThrow(
+    const { getFirebaseAdmin } = await import('./firebaseAdmin');
+    expect(() => getFirebaseAdmin()).toThrow(
       /FIREBASE_PROJECT_ID.*FIREBASE_PRIVATE_KEY|FIREBASE_PRIVATE_KEY.*FIREBASE_PROJECT_ID/,
     );
   });
 
   it('does not call initializeApp when apps is already populated', async () => {
     setValidEnv();
-    const existingApp = { firestore: vi.fn(() => ({})) };
+    const existingApp = { firestore: vi.fn(() => ({})), auth: vi.fn(() => ({})) };
     const apps = [existingApp];
     const initializeApp = vi.fn();
     const cert = vi.fn((creds: unknown) => creds);

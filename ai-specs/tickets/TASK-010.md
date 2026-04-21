@@ -2,9 +2,9 @@
 id: TASK-010
 title: "Implement system prompt builder (user + vehicle context)"
 type: feature
-status: todo
+status: done
 scope: backend
-assignee: unassigned
+assignee: Jorge Dominguez
 created: 2026-04-16
 branch: ~
 plan_backend: ai-specs/changes/TASK-010_backend.md

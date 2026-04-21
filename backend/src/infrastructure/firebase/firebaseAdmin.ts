@@ -36,12 +36,23 @@ function initializeAdmin(): admin.app.App {
   });
 }
 
-const app = initializeAdmin();
+let _app: admin.app.App | null = null;
+
+function getApp(): admin.app.App {
+  if (_app === null) {
+    _app = initializeAdmin();
+  }
+  return _app;
+}
 
 export function getFirebaseAdmin(): admin.app.App {
-  return app;
+  return getApp();
 }
 
 export function getFirestore(): admin.firestore.Firestore {
-  return app.firestore();
+  return getApp().firestore();
+}
+
+export function getAuth(): admin.auth.Auth {
+  return getApp().auth();
 }

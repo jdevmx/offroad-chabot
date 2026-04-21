@@ -2,9 +2,9 @@
 id: TASK-009
 title: "Implement Firestore conversation memory + summary compression"
 type: feature
-status: todo
+status: done
 scope: backend
-assignee: unassigned
+assignee: Jorge Dominguez
 created: 2026-04-16
 branch: ~
 plan_backend: ai-specs/changes/TASK-009_backend.md
