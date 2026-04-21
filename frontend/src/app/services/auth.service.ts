@@ -25,8 +25,27 @@ export type AuthResult = {
   userId: string;
 };
 
-export async function register(_payload: RegisterPayload): Promise<AuthResult> {
-  throw new Error('not implemented');
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
+
+export async function checkUsername(username: string): Promise<{ available: boolean }> {
+  const response = await fetch(`${BASE_URL}/auth/check-username?username=${encodeURIComponent(username)}`);
+  if (!response.ok) {
+    throw new Error(`Unexpected status ${response.status}`);
+  }
+  return response.json() as Promise<{ available: boolean }>;
+}
+
+export async function register(payload: RegisterPayload): Promise<AuthResult> {
+  const response = await fetch(`${BASE_URL}/auth/register`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) {
+    const body = await response.text();
+    throw new Error(body || `Registration failed with status ${response.status}`);
+  }
+  return response.json() as Promise<AuthResult>;
 }
 
 export async function login(_payload: LoginPayload): Promise<AuthResult> {
@@ -34,9 +53,5 @@ export async function login(_payload: LoginPayload): Promise<AuthResult> {
 }
 
 export async function logout(): Promise<void> {
-  throw new Error('not implemented');
-}
-
-export async function checkUsername(_username: string): Promise<{ available: boolean }> {
   throw new Error('not implemented');
 }

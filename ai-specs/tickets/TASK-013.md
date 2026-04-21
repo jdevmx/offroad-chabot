@@ -2,9 +2,9 @@
 id: TASK-013
 title: "Implement registration form (username check + vehicle + PIN)"
 type: feature
-status: todo
+status: in_progress
 scope: frontend
-assignee: unassigned
+assignee: Jorge Dominguez
 created: 2026-04-16
 branch: ~
 plan_backend: ~
