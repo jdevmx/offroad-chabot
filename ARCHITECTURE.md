@@ -350,5 +350,5 @@ Tracks all planned specs with lifecycle dates. Updated as tickets move through t
 | TASK-015 | Implement left panel (auth toggle + user info) | Frontend | 2026-04-16 | 2026-04-18 | 2026-04-21 |
 | TASK-016 | Chat interface (message list + input + history load) | Frontend | 2026-04-16 | 2026-04-20 | 2026-04-21 |
 | TASK-017 | User profile view (vehicle display + edit modifications) | Frontend | 2026-04-16 | 2026-04-20 | 2026-04-21 |
-| TASK-018 | Deployment setup | Infra | 2026-04-16 | 2026-04-20 | — |
+| TASK-018 | Deployment setup | Infra | 2026-04-16 | 2026-04-20 | 2026-04-22 |
 | TASK-019 | Add Markdown rendering for AI chat responses | Frontend | 2026-04-21 | 2026-04-21 | 2026-04-21 |

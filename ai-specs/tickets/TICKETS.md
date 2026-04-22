@@ -10,7 +10,6 @@ Do not edit the ticket entries manually — use `/create-ticket` to create new t
 ## To Do
 
 <!-- tickets with status: todo -->
-- **[TASK-018]** Deployment setup _(chore · fullstack)_ — plan ready: `ai-specs/changes/TASK-018_backend.md`, `ai-specs/changes/TASK-018_frontend.md`
 
 ## In Progress
 
@@ -19,6 +18,7 @@ Do not edit the ticket entries manually — use `/create-ticket` to create new t
 ## Done
 
 <!-- tickets with status: done -->
+- **[TASK-018]** Deployment setup _(chore · fullstack)_ — plan ready: `ai-specs/changes/TASK-018_backend.md`, `ai-specs/changes/TASK-018_frontend.md`
 - **[TASK-019]** Add Markdown rendering for AI chat responses _(feature · frontend)_ — plan ready: `ai-specs/changes/TASK-019_frontend.md`
 - **[TASK-017]** User profile view (vehicle display + edit modifications) _(feature · frontend)_ — plan ready: `ai-specs/changes/TASK-017_backend.md`, `ai-specs/changes/TASK-017_frontend.md`
 - **[TASK-016]** Chat interface (message list + input + history load) _(feature · frontend)_ — plan ready: `ai-specs/changes/TASK-016_frontend.md`
