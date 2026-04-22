@@ -7,6 +7,7 @@
 .claude/sessions/
 .claude/todos/
 memory/
+!backend/src/**/memory/
 
 # AI-generated output
 docs/agent_outputs/
