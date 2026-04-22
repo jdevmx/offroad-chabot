@@ -2,6 +2,8 @@
 
 AI Assistant for off-road enthusiasts that recognizes users, knows their 4x4 vehicles, and provides personalized advice
 
+**Live:** https://offroad-agentai.web.app/
+
 **Project type:** fullstack, ai-agent | **Ticket system:** local
 
 ## 📁 Repository Structure

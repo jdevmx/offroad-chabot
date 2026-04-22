@@ -154,6 +154,7 @@ AI Orchestration: LangChain.js with OpenAI and Tavily Search API.
 ### DD-010 — Backend deployed to GCP Cloud Run; frontend to Firebase Hosting
 
 **Date:** 2026-04-22
+**Live URL:** https://offroad-agentai.web.app/
 **Context:** Pending decision from DD-009 resolved. The project needed a deployment target that kept Firebase as the primary platform while supporting a containerised Node.js backend.
 **Decision:** Backend → GCP Cloud Run (containerised, Docker). Frontend → Firebase Hosting (static export, Next.js `output: "export"`).
 **Rationale:** Cloud Run integrates naturally with the same GCP project used by Firestore and Firebase Auth. Firebase Hosting gives a managed CDN for the static frontend with zero extra infrastructure.
