@@ -224,6 +224,14 @@ const CandidateList: React.FC = () => {
 
 ### Component Conventions
 
+#### Markdown Rendering in Chat Messages
+
+`role: assistant` messages in `MessageList` are rendered as Markdown using `react-markdown` with `rehype-sanitize` for XSS protection. `role: user` messages always render as plain text — no Markdown parsing.
+
+- The `markdownComponents` constant is declared **outside** the component function to avoid identity changes on re-render.
+- Do not use `dangerouslySetInnerHTML` or the Tailwind Typography plugin for this feature.
+- All Markdown element styling uses explicit Tailwind class overrides in the `Components` map.
+
 #### Functional Components
 - **Always use functional components** with hooks instead of class components
 - Use **TypeScript for new components** when possible

@@ -2,9 +2,9 @@
 id: TASK-012
 title: "Implement POST /chat endpoint (anon + authenticated)"
 type: feature
-status: todo
+status: done
 scope: backend
-assignee: unassigned
+assignee: Jorge Dominguez
 created: 2026-04-16
 branch: ~
 plan_backend: ai-specs/changes/TASK-012_backend.md

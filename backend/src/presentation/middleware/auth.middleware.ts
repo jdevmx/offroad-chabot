@@ -1,5 +1,5 @@
+import jwt from 'jsonwebtoken';
 import type { NextFunction, Request, Response } from 'express';
-import { getAuth } from '../../infrastructure/firebase/firebaseAdmin';
 
 export interface AuthenticatedRequest extends Request {
   user?: { uid: string };
@@ -8,7 +8,12 @@ export interface AuthenticatedRequest extends Request {
 type TokenVerifier = (token: string) => Promise<{ uid: string }>;
 
 function defaultVerifier(): TokenVerifier {
-  return (token) => getAuth().verifyIdToken(token);
+  return async (token) => {
+    const secret = process.env.JWT_SECRET;
+    if (!secret) throw new Error('JWT_SECRET environment variable is not set');
+    const payload = jwt.verify(token, secret) as { uid: string };
+    return { uid: payload.uid };
+  };
 }
 
 export function verifyToken(

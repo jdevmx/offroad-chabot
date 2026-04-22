@@ -13,17 +13,10 @@ type Experience = 'beginner' | 'intermediate' | 'expert';
 
 const TERRAIN_OPTIONS = ['sand', 'mud', 'rock', 'trail', 'snow'] as const;
 
-async function defaultSignIn(token: string): Promise<void> {
-  const { signInWithCustomToken } = await import('firebase/auth');
-  const { auth } = await import('../lib/firebase');
-  await signInWithCustomToken(auth, token);
-}
-
 type RegisterFormProps = {
   onSuccess?: () => void;
   checkUsername?: (username: string) => Promise<{ available: boolean }>;
-  register?: (payload: RegisterPayload) => Promise<{ token: string; userId: string }>;
-  signIn?: (token: string) => Promise<void>;
+  register?: (payload: RegisterPayload) => Promise<{ token: string; userId: string; displayName: string }>;
 };
 
 type FormErrors = Partial<Record<string, string>>;
@@ -62,7 +55,6 @@ export default function RegisterForm({
   onSuccess,
   checkUsername = defaultCheckUsername,
   register = defaultRegister,
-  signIn = defaultSignIn,
 }: RegisterFormProps): React.JSX.Element {
   const [username, setUsername] = useState('');
   const [displayName, setDisplayName] = useState('');
@@ -148,8 +140,7 @@ export default function RegisterForm({
 
     setSubmitting(true);
     try {
-      const result = await register(payload);
-      await signIn(result.token);
+      await register(payload);
       onSuccess?.();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Registration failed';

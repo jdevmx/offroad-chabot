@@ -2,9 +2,9 @@
 id: TASK-016
 title: "Implement chat interface (message list + input + history load)"
 type: feature
-status: todo
+status: done
 scope: frontend
-assignee: unassigned
+assignee: Jorge Dominguez
 created: 2026-04-16
 branch: ~
 plan_backend: ~

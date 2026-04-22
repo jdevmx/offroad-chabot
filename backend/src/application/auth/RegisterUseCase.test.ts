@@ -33,8 +33,8 @@ class InMemoryAuthProvider implements IAuthProvider {
     return { uid: this.nextUid };
   }
 
-  async createCustomToken(_uid: string): Promise<string> {
-    return 'test-custom-token';
+  async createToken(_uid: string): Promise<string> {
+    return 'test-token';
   }
 }
 
@@ -65,11 +65,12 @@ function makeUseCase(repo?: IClientRepository, auth?: IAuthProvider) {
 }
 
 describe('RegisterUseCase', () => {
-  it('returns customToken and uid on valid input', async () => {
+  it('returns token, userId and displayName on valid input', async () => {
     const result = await makeUseCase().execute(makeValidInput());
 
-    expect(result.uid).toBe('test-uid-1');
-    expect(result.customToken).toBe('test-custom-token');
+    expect(result.userId).toBe('test-uid-1');
+    expect(result.displayName).toBe('Trail Rider');
+    expect(result.token).toBe('test-token');
   });
 
   it('saves the client with a hashed PIN', async () => {

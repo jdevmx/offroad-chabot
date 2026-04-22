@@ -1,3 +1,4 @@
+import jwt from 'jsonwebtoken';
 import { Auth } from 'firebase-admin/auth';
 import { CreateUserResult, IAuthProvider } from '../../application/auth/IAuthProvider';
 
@@ -9,7 +10,9 @@ export class FirebaseAuthProvider implements IAuthProvider {
     return { uid: record.uid };
   }
 
-  async createCustomToken(uid: string): Promise<string> {
-    return this.auth.createCustomToken(uid);
+  async createToken(uid: string): Promise<string> {
+    const secret = process.env.JWT_SECRET;
+    if (!secret) throw new Error('JWT_SECRET environment variable is not set');
+    return jwt.sign({ uid }, secret, { expiresIn: '7d' });
   }
 }

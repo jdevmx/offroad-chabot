@@ -27,8 +27,8 @@ class InMemoryAuthProvider implements IAuthProvider {
     return { uid: 'unused' };
   }
 
-  async createCustomToken(_uid: string): Promise<string> {
-    return 'test-custom-token';
+  async createToken(_uid: string): Promise<string> {
+    return 'test-token';
   }
 }
 
@@ -61,14 +61,15 @@ function makeUseCase(clients: Client[] = []) {
 }
 
 describe('LoginUseCase', () => {
-  it('returns customToken and uid for valid credentials', async () => {
+  it('returns token, userId and displayName for valid credentials', async () => {
     const result = await makeUseCase([existingClient]).execute({
       username: 'trail_rider',
       pin: '1234',
     });
 
-    expect(result.uid).toBe('uid-existing');
-    expect(result.customToken).toBe('test-custom-token');
+    expect(result.userId).toBe('uid-existing');
+    expect(result.displayName).toBe('Trail Rider');
+    expect(result.token).toBe('test-token');
   });
 
   it('throws NotFoundError with generic message when username is not found', async () => {

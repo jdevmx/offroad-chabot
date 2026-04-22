@@ -2,9 +2,9 @@
 id: TASK-017
 title: "Implement user profile view (vehicle display + edit modifications)"
 type: feature
-status: todo
+status: done
 scope: frontend
-assignee: unassigned
+assignee: Jorge Dominguez
 created: 2026-04-16
 branch: ~
 plan_backend: ai-specs/changes/TASK-017_backend.md

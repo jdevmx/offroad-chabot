@@ -4,5 +4,5 @@ export interface CreateUserResult {
 
 export interface IAuthProvider {
   createUser(displayName: string): Promise<CreateUserResult>;
-  createCustomToken(uid: string): Promise<string>;
+  createToken(uid: string): Promise<string>;
 }

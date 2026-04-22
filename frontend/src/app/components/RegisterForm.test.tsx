@@ -11,18 +11,12 @@ function makeCheckUsername(available: boolean) {
   };
 }
 
-function makeRegister(result: { token: string; userId: string } | Error) {
-  return async (_payload: RegisterPayload): Promise<{ token: string; userId: string }> => {
+function makeRegister(result: { token: string; userId: string; displayName: string } | Error) {
+  return async (_payload: RegisterPayload): Promise<{ token: string; userId: string; displayName: string }> => {
     if (result instanceof Error) throw result;
     return result;
   };
 }
-
-async function noOpSignIn(_token: string): Promise<void> {
-  // no-op — avoids real Firebase auth in tests
-}
-
-// Firebase sign-in is injected via prop so no Firebase module is loaded in tests.
 
 function fillRequiredFields(): void {
   fireEvent.change(screen.getByLabelText(/username/i), { target: { value: 'testuser' } });
@@ -49,7 +43,6 @@ describe('RegisterForm', () => {
         <RegisterForm
           checkUsername={makeCheckUsername(true)}
           register={makeRegister(new Error('not called'))}
-          signIn={noOpSignIn}
         />
       );
       expect(screen.getByLabelText(/username/i)).toBeInTheDocument();
@@ -62,7 +55,6 @@ describe('RegisterForm', () => {
         <RegisterForm
           checkUsername={makeCheckUsername(true)}
           register={makeRegister(new Error('not called'))}
-          signIn={noOpSignIn}
         />
       );
       expect(screen.getByLabelText(/make/i)).toBeInTheDocument();
@@ -77,7 +69,6 @@ describe('RegisterForm', () => {
         <RegisterForm
           checkUsername={makeCheckUsername(true)}
           register={makeRegister(new Error('not called'))}
-          signIn={noOpSignIn}
         />
       );
       for (const terrain of ['sand', 'mud', 'rock', 'trail', 'snow']) {
@@ -100,7 +91,6 @@ describe('RegisterForm', () => {
         <RegisterForm
           checkUsername={neverResolveCheck}
           register={makeRegister(new Error('not called'))}
-          signIn={noOpSignIn}
         />
       );
 
@@ -119,7 +109,6 @@ describe('RegisterForm', () => {
         <RegisterForm
           checkUsername={makeCheckUsername(true)}
           register={makeRegister(new Error('not called'))}
-          signIn={noOpSignIn}
         />
       );
 
@@ -137,7 +126,6 @@ describe('RegisterForm', () => {
         <RegisterForm
           checkUsername={makeCheckUsername(false)}
           register={makeRegister(new Error('not called'))}
-          signIn={noOpSignIn}
         />
       );
 
@@ -154,16 +142,15 @@ describe('RegisterForm', () => {
   describe('form validation on submit', () => {
     it('shows error for missing username without calling register', async () => {
       let registerCalled = false;
-      const trackRegister = async (_p: RegisterPayload): Promise<{ token: string; userId: string }> => {
+      const trackRegister = async (_p: RegisterPayload): Promise<{ token: string; userId: string; displayName: string }> => {
         registerCalled = true;
-        return { token: 't', userId: 'u' };
+        return { token: 't', userId: 'u', displayName: 'User' };
       };
 
       render(
         <RegisterForm
           checkUsername={makeCheckUsername(true)}
           register={trackRegister}
-          signIn={noOpSignIn}
         />
       );
 
@@ -188,7 +175,6 @@ describe('RegisterForm', () => {
         <RegisterForm
           checkUsername={makeCheckUsername(true)}
           register={makeRegister(new Error('not called'))}
-          signIn={noOpSignIn}
         />
       );
 
@@ -206,7 +192,6 @@ describe('RegisterForm', () => {
         <RegisterForm
           checkUsername={makeCheckUsername(true)}
           register={makeRegister(new Error('not called'))}
-          signIn={noOpSignIn}
         />
       );
 
@@ -232,7 +217,6 @@ describe('RegisterForm', () => {
         <RegisterForm
           checkUsername={makeCheckUsername(true)}
           register={makeRegister(new Error('not called'))}
-          signIn={noOpSignIn}
         />
       );
 
@@ -256,7 +240,6 @@ describe('RegisterForm', () => {
         <RegisterForm
           checkUsername={makeCheckUsername(true)}
           register={makeRegister(new Error('not called'))}
-          signIn={noOpSignIn}
         />
       );
       const pinInput = screen.getByLabelText(/pin/i);
@@ -271,7 +254,6 @@ describe('RegisterForm', () => {
         <RegisterForm
           checkUsername={makeCheckUsername(true)}
           register={makeRegister(new Error('Username already exists'))}
-          signIn={noOpSignIn}
         />
       );
 

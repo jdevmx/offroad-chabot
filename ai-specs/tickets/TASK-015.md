@@ -2,9 +2,9 @@
 id: TASK-015
 title: "Implement left panel (auth toggle + user info)"
 type: feature
-status: todo
+status: done
 scope: frontend
-assignee: unassigned
+assignee: Jorge Dominguez
 created: 2026-04-16
 branch: ~
 plan_backend: ~

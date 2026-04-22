@@ -22,8 +22,9 @@ export interface RegisterInput {
 }
 
 export interface RegisterOutput {
-  customToken: string;
-  uid: string;
+  token: string;
+  userId: string;
+  displayName: string;
 }
 
 const CURRENT_YEAR = new Date().getFullYear();
@@ -68,9 +69,9 @@ export class RegisterUseCase {
     });
 
     await this.repo.save(client);
-    const customToken = await this.auth.createCustomToken(uid);
+    const token = await this.auth.createToken(uid);
 
-    return { customToken, uid };
+    return { token, userId: uid, displayName: input.displayName };
   }
 
   private validate(input: RegisterInput): void {

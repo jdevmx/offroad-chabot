@@ -7,6 +7,12 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
+    env: {
+      NEXT_PUBLIC_FIREBASE_API_KEY: 'test-api-key',
+      NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: 'test-project.firebaseapp.com',
+      NEXT_PUBLIC_FIREBASE_PROJECT_ID: 'test-project',
+      NEXT_PUBLIC_FIREBASE_APP_ID: '1:000000000000:web:test',
+    },
     coverage: {
       provider: 'v8',
       thresholds: {

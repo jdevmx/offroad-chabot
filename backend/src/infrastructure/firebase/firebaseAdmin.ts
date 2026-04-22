@@ -1,4 +1,5 @@
 import * as admin from 'firebase-admin';
+import { getFirestore as adminGetFirestore } from 'firebase-admin/firestore';
 
 const REQUIRED_ENV_VARS = [
   'FIREBASE_PROJECT_ID',
@@ -50,7 +51,13 @@ export function getFirebaseAdmin(): admin.app.App {
 }
 
 export function getFirestore(): admin.firestore.Firestore {
-  return getApp().firestore();
+  const app = getApp();
+  const databaseId = process.env.FIREBASE_DATABASE_ID;
+  console.log(`[Firestore] project="${process.env.FIREBASE_PROJECT_ID}" databaseId="${databaseId ?? '(not set — using SDK default)'}"`);
+  if (databaseId) {
+    return adminGetFirestore(app, databaseId);
+  }
+  return adminGetFirestore(app);
 }
 
 export function getAuth(): admin.auth.Auth {

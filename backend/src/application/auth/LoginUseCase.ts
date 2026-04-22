@@ -9,8 +9,9 @@ export interface LoginInput {
 }
 
 export interface LoginOutput {
-  customToken: string;
-  uid: string;
+  token: string;
+  userId: string;
+  displayName: string;
 }
 
 const INVALID_CREDENTIALS_MSG = 'Invalid username or PIN';
@@ -40,7 +41,7 @@ export class LoginUseCase {
       throw new NotFoundError(INVALID_CREDENTIALS_MSG);
     }
 
-    const customToken = await this.auth.createCustomToken(client.uid);
-    return { customToken, uid: client.uid };
+    const token = await this.auth.createToken(client.uid);
+    return { token, userId: client.uid, displayName: client.displayName };
   }
 }

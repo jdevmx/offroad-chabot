@@ -2,9 +2,9 @@
 id: TASK-014
 title: "Implement login form (username + PIN)"
 type: feature
-status: todo
+status: done
 scope: frontend
-assignee: unassigned
+assignee: Jorge Dominguez
 created: 2026-04-16
 branch: ~
 plan_backend: ~

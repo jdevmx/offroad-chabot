@@ -84,7 +84,7 @@ export class FirestoreClientRepository implements IClientRepository {
         make: client.vehicle.make,
         model: client.vehicle.model,
         year: client.vehicle.year,
-        trim: client.vehicle.trim,
+        ...(client.vehicle.trim !== undefined && { trim: client.vehicle.trim }),
         modifications: client.vehicle.modifications,
       },
       preferences: {
