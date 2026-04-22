@@ -9,6 +9,7 @@ export interface ChatRequest {
   userId?: string;
   conversationId?: string;
   message: string;
+  onToolCall?: (toolName: string) => void;
 }
 
 export interface ChatResponse {
@@ -73,7 +74,7 @@ export class ChatUseCase {
       llmInvoke: this.llmInvoke,
     });
 
-    const result = await this.agentRunner({ message, systemPrompt, memory });
+    const result = await this.agentRunner({ message, systemPrompt, memory, onToolCall: params.onToolCall });
 
     return { message: result.message, conversationId: effectiveConversationId };
   }

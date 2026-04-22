@@ -34,7 +34,7 @@ export default function ChatArea({
 }: ChatAreaProps): React.JSX.Element {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [conversationId, setConversationId] = useState<string | undefined>(undefined);
-  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState<string | null>(null);
   const [user, setUser] = useState<AuthUser | null | undefined>(undefined);
   const [error, setError] = useState<string | null>(null);
 
@@ -71,17 +71,20 @@ export default function ChatArea({
     setError(null);
     const userMessage: ChatMessage = { role: 'user', content: text };
     setMessages((prev) => [...prev, userMessage]);
-    setLoading(true);
+    setStatus('thinking');
 
     try {
       const token = user?.token;
 
-      const result = await sendMessage({
-        message: text,
-        userId: user?.uid,
-        conversationId,
-        token,
-      });
+      const result = await sendMessage(
+        {
+          message: text,
+          userId: user?.uid,
+          conversationId,
+          token,
+        },
+        (s) => setStatus(s),
+      );
 
       if (result.conversationId) {
         setConversationId(result.conversationId);
@@ -93,19 +96,19 @@ export default function ChatArea({
       const message = err instanceof Error ? err.message : 'Something went wrong';
       setError(message);
     } finally {
-      setLoading(false);
+      setStatus(null);
     }
   }
 
   return (
     <section className="flex flex-1 flex-col">
-      <MessageList messages={messages} loading={loading} />
+      <MessageList messages={messages} statusText={status === 'searching' ? 'Bot is searching the web…' : status ? 'Bot is thinking…' : null} />
       {error && (
         <div role="alert" className="mx-4 mb-2 rounded bg-red-50 px-3 py-2 text-sm text-red-700">
           {error}
         </div>
       )}
-      <MessageInput onSend={handleSend} disabled={loading} />
+      <MessageInput onSend={handleSend} disabled={status !== null} />
     </section>
   );
 }

@@ -8,7 +8,7 @@ import type { ChatMessage } from '../services/chat.service';
 
 type MessageListProps = {
   messages: ChatMessage[];
-  loading?: boolean;
+  statusText?: string | null;
 };
 
 const markdownComponents: Components = {
@@ -31,12 +31,12 @@ const markdownComponents: Components = {
   h3: ({ children }) => <h3 className="font-bold text-sm">{children}</h3>,
 };
 
-export default function MessageList({ messages, loading = false }: MessageListProps): React.JSX.Element {
+export default function MessageList({ messages, statusText = null }: MessageListProps): React.JSX.Element {
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView?.({ behavior: 'smooth' });
-  }, [messages, loading]);
+  }, [messages, statusText]);
 
   return (
     <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
@@ -62,10 +62,10 @@ export default function MessageList({ messages, loading = false }: MessageListPr
           </div>
         </div>
       ))}
-      {loading && (
+      {statusText && (
         <div className="flex justify-start">
           <div className="rounded-lg bg-gray-100 px-4 py-2 text-sm text-gray-500 italic">
-            Bot is typing…
+            {statusText}
           </div>
         </div>
       )}

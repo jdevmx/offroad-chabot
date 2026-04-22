@@ -147,17 +147,29 @@ describe('POST /chat', () => {
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
   });
 
-  it('returns 200 with message for anonymous request', async () => {
+  it('streams SSE events and final message for anonymous request', async () => {
     const app = makeApp(makeUseCase(undefined, undefined, makeNullAgent('Anon trail tip')));
 
     const res = await request(app).post('/chat').send({ message: 'Any trail tips?' });
 
     expect(res.status).toBe(200);
-    expect(res.body.message).toBe('Anon trail tip');
-    expect(res.body.conversationId).toBeUndefined();
+    expect(res.headers['content-type']).toContain('text/event-stream');
+
+    const events = res.text
+      .split('\n\n')
+      .filter((chunk) => chunk.startsWith('data: '))
+      .map((chunk) => JSON.parse(chunk.slice(6)));
+
+    const statusEvent = events.find((e) => e.type === 'status' && e.text === 'thinking');
+    expect(statusEvent).toBeDefined();
+
+    const messageEvent = events.find((e) => e.type === 'message');
+    expect(messageEvent).toBeDefined();
+    expect(messageEvent.message).toBe('Anon trail tip');
+    expect(messageEvent.conversationId).toBeNull();
   });
 
-  it('returns 200 with conversationId for authenticated request', async () => {
+  it('streams SSE message event with conversationId for authenticated request', async () => {
     const clientRepo = new NullableClientRepository();
     clientRepo.seed(new Client(makeClientData('uid-auth')));
     const convRepo = new NullableConversationRepository();
@@ -170,28 +182,38 @@ describe('POST /chat', () => {
       .send({ message: 'Trail conditions?' });
 
     expect(res.status).toBe(200);
-    expect(res.body.message).toBe('Trail advice here.');
-    expect(res.body.conversationId).toBeDefined();
+
+    const events = res.text
+      .split('\n\n')
+      .filter((chunk) => chunk.startsWith('data: '))
+      .map((chunk) => JSON.parse(chunk.slice(6)));
+
+    const messageEvent = events.find((e) => e.type === 'message');
+    expect(messageEvent).toBeDefined();
+    expect(messageEvent.message).toBe('Trail advice here.');
+    expect(messageEvent.conversationId).toBeDefined();
+    expect(messageEvent.conversationId).not.toBeNull();
   });
 
-  it('returns 500 when the agent throws', async () => {
+  it('streams SSE error event when the agent throws', async () => {
     const failingAgent = async (_params: RunAgentParams): Promise<RunAgentResult> => {
       throw new Error('LLM unavailable');
     };
 
     const app = makeApp(makeUseCase(undefined, undefined, failingAgent));
-    app.use(
-      (err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
-        res.status(500).json({
-          success: false,
-          error: { message: 'Failed to process chat', code: 'INTERNAL_ERROR' },
-        });
-      },
-    );
 
     const res = await request(app).post('/chat').send({ message: 'Hello' });
 
-    expect(res.status).toBe(500);
-    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toContain('text/event-stream');
+
+    const events = res.text
+      .split('\n\n')
+      .filter((chunk) => chunk.startsWith('data: '))
+      .map((chunk) => JSON.parse(chunk.slice(6)));
+
+    const errorEvent = events.find((e) => e.type === 'error');
+    expect(errorEvent).toBeDefined();
+    expect(errorEvent.message).toBe('Something went wrong');
   });
 });

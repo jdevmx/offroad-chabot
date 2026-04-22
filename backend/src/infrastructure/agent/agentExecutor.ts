@@ -19,6 +19,7 @@ export interface RunAgentParams {
   memory: FirestoreChatMemory;
   llm?: BaseChatModel;
   tools?: DynamicStructuredTool[];
+  onToolCall?: (toolName: string) => void;
 }
 
 export interface RunAgentResult {
@@ -83,6 +84,7 @@ export async function runAgent(params: RunAgentParams): Promise<RunAgentResult> 
       const tool = toolMap.get(toolCall.name);
       if (!tool) continue;
 
+      params.onToolCall?.(toolCall.name);
       toolsUsed.push(toolCall.name);
       const result = await tool.invoke(toolCall.args as Record<string, unknown>);
       messages.push(new ToolMessage({ content: String(result), tool_call_id: toolCall.id ?? '' }));

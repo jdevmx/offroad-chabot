@@ -24,21 +24,33 @@ describe('MessageList', () => {
     it('renders empty list without errors', () => {
       render(<MessageList messages={[]} />);
 
-      expect(screen.queryByText('Bot is typing')).not.toBeInTheDocument();
+      expect(screen.queryByText(/bot is/i)).not.toBeInTheDocument();
     });
   });
 
-  describe('loading indicator', () => {
-    it('shows loading indicator when loading is true', () => {
-      render(<MessageList messages={[]} loading={true} />);
+  describe('status indicator', () => {
+    it('shows thinking indicator when statusText is set', () => {
+      render(<MessageList messages={[]} statusText="Bot is thinking…" />);
 
-      expect(screen.getByText(/bot is typing/i)).toBeInTheDocument();
+      expect(screen.getByText('Bot is thinking…')).toBeInTheDocument();
     });
 
-    it('hides loading indicator when loading is false', () => {
-      render(<MessageList messages={[]} loading={false} />);
+    it('shows searching indicator when statusText indicates searching', () => {
+      render(<MessageList messages={[]} statusText="Bot is searching the web…" />);
 
-      expect(screen.queryByText(/bot is typing/i)).not.toBeInTheDocument();
+      expect(screen.getByText('Bot is searching the web…')).toBeInTheDocument();
+    });
+
+    it('hides status indicator when statusText is null', () => {
+      render(<MessageList messages={[]} statusText={null} />);
+
+      expect(screen.queryByText(/bot is/i)).not.toBeInTheDocument();
+    });
+
+    it('hides status indicator when statusText is not provided', () => {
+      render(<MessageList messages={[]} />);
+
+      expect(screen.queryByText(/bot is/i)).not.toBeInTheDocument();
     });
   });
 
