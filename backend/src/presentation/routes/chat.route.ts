@@ -11,6 +11,7 @@ export function createChatRouter(useCase?: ChatUseCase, tokenVerifier?: TokenVer
   const router = Router();
 
   let resolvedUseCase: ChatUseCase | undefined = useCase;
+  let resolvedConvRepo: FirestoreConversationRepository | undefined;
 
   function getUseCase(): ChatUseCase {
     if (!resolvedUseCase) {
@@ -21,6 +22,44 @@ export function createChatRouter(useCase?: ChatUseCase, tokenVerifier?: TokenVer
     }
     return resolvedUseCase;
   }
+
+  function getConvRepo(): FirestoreConversationRepository {
+    if (!resolvedConvRepo) {
+      resolvedConvRepo = new FirestoreConversationRepository(getFirestore());
+    }
+    return resolvedConvRepo;
+  }
+
+  router.get(
+    '/',
+    verifyToken({ required: true }, tokenVerifier),
+    async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+      try {
+        const userId = req.user?.uid;
+        if (!userId) {
+          res.status(401).json({ error: 'Unauthorized' });
+          return;
+        }
+
+        const conversation = await getConvRepo().findByUserId(userId);
+
+        if (!conversation) {
+          res.status(200).json({ conversationId: null, turns: [] });
+          return;
+        }
+
+        const turns = conversation.turns.map((t) => ({
+          userMessage: t.userMessage,
+          assistantMessage: t.assistantMessage,
+          timestamp: t.timestamp.toISOString(),
+        }));
+
+        res.status(200).json({ conversationId: conversation.id, turns });
+      } catch (err) {
+        next(err);
+      }
+    },
+  );
 
   router.post(
     '/',

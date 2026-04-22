@@ -41,6 +41,22 @@ export async function sendMessage(payload: SendMessagePayload): Promise<SendMess
   return response.json() as Promise<SendMessageResult>;
 }
 
-export async function loadHistory(_conversationId: string): Promise<ConversationTurn[]> {
-  return [];
+export type LoadHistoryResult = {
+  conversationId: string | null;
+  turns: ConversationTurn[];
+};
+
+export async function loadHistory(token: string): Promise<LoadHistoryResult> {
+  const response = await fetch(`${BASE_URL}/chat`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  if (!response.ok) {
+    const body = await response.text();
+    throw new Error(body || `History request failed with status ${response.status}`);
+  }
+  return response.json() as Promise<LoadHistoryResult>;
 }

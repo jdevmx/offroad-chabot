@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import MessageList from './MessageList';
 import MessageInput from './MessageInput';
 import { sendMessage, loadHistory } from '../services/chat.service';
-import type { ChatMessage, ConversationTurn } from '../services/chat.service';
+import type { ChatMessage, ConversationTurn, LoadHistoryResult } from '../services/chat.service';
 import { subscribe as subscribeToStore, getSession } from '../lib/authStore';
 
 type AuthUser = {
@@ -46,20 +46,26 @@ export default function ChatArea({
   }, [subscribeToAuth]);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      setMessages([]);
+      setConversationId(undefined);
+      return;
+    }
 
     async function fetchHistory(): Promise<void> {
-      if (!conversationId) return;
       try {
-        const turns = await loadHistory(conversationId);
-        setMessages(turnsToMessages(turns));
+        const result: LoadHistoryResult = await loadHistory(user!.token);
+        if (result.conversationId) {
+          setConversationId(result.conversationId);
+        }
+        setMessages(turnsToMessages(result.turns));
       } catch {
         // history load failure is non-fatal — start with empty chat
       }
     }
 
     fetchHistory();
-  }, [user, conversationId]);
+  }, [user]);
 
   async function handleSend(text: string): Promise<void> {
     setError(null);
