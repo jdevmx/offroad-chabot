@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 type MessageInputProps = {
   onSend: (text: string) => void;
@@ -9,6 +9,11 @@ type MessageInputProps = {
 
 export default function MessageInput({ onSend, disabled }: MessageInputProps): React.JSX.Element {
   const [value, setValue] = useState('');
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (!disabled) textareaRef.current?.focus();
+  }, [disabled]);
 
   function handleSubmit(): void {
     const trimmed = value.trim();
@@ -17,7 +22,7 @@ export default function MessageInput({ onSend, disabled }: MessageInputProps): R
     setValue('');
   }
 
-  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>): void {
+  function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>): void {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSubmit();
@@ -26,14 +31,15 @@ export default function MessageInput({ onSend, disabled }: MessageInputProps): R
 
   return (
     <div className="flex gap-2 border-t border-gray-200 p-3">
-      <input
-        type="text"
+      <textarea
+        ref={textareaRef}
+        rows={4}
         value={value}
         onChange={(e) => setValue(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder="Type a message..."
         disabled={disabled}
-        className="flex-1 rounded border border-gray-300 px-3 py-2 text-sm disabled:opacity-50"
+        className="flex-1 resize-none rounded border border-gray-300 px-3 py-2 text-sm disabled:opacity-50"
         aria-label="Message input"
       />
       <button
