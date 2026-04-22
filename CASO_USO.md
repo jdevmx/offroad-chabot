@@ -149,11 +149,81 @@ AI Orchestration: LangChain.js with OpenAI and Tavily Search API.
 
 ---
 
+---
+
+### DD-010 — Backend deployed to GCP Cloud Run; frontend to Firebase Hosting
+
+**Date:** 2026-04-22
+**Context:** Pending decision from DD-009 resolved. The project needed a deployment target that kept Firebase as the primary platform while supporting a containerised Node.js backend.
+**Decision:** Backend → GCP Cloud Run (containerised, Docker). Frontend → Firebase Hosting (static export, Next.js `output: "export"`).
+**Rationale:** Cloud Run integrates naturally with the same GCP project used by Firestore and Firebase Auth. Firebase Hosting gives a managed CDN for the static frontend with zero extra infrastructure.
+**Trade-offs:** Next.js static export disables server-side features (Server Components data fetching at request time, API routes). Accepted because the app is fully client-driven at runtime.
+
+---
+
+### DD-011 — Application Default Credentials (ADC) on Cloud Run instead of a service account key file
+
+**Date:** 2026-04-22
+**Context:** Cloud Run needs to call Firestore and Firebase Auth. The initial prototype sourced a service account cert via environment variables, which is fragile and hard to rotate.
+**Decision:** The Cloud Run service runs as a dedicated service account (`offroad-cloud-run`). The backend uses ADC (`admin.initializeApp()` with no explicit credential), which automatically picks up the ambient identity on Cloud Run.
+**Rationale:** No private key to manage or rotate. IAM roles (`roles/datastore.user`, `roles/firebaseauth.admin`) are granted to the service account directly.
+**Trade-offs:** Local dev still needs `GOOGLE_APPLICATION_CREDENTIALS` pointing to a local key, or `gcloud auth application-default login`.
+
+---
+
+### DD-012 — Workload Identity Federation for keyless CI/CD authentication
+
+**Date:** 2026-04-22
+**Context:** GitHub Actions needs to push Docker images to Artifact Registry and deploy to Cloud Run. Service account JSON keys stored in GitHub Secrets are a security anti-pattern.
+**Decision:** Workload Identity Federation (WIF) — a WIF pool (`github-actions`) and OIDC provider (`github-actions-provider`) are created in GCP. The workflow exchanges a short-lived GitHub OIDC token for a GCP access token.
+**Rationale:** No long-lived keys exist. Access is automatically scoped to the specific GitHub repository via `attribute.repository` condition.
+**Trade-offs:** More initial setup than a JSON key. The `gcp-setup.sh` script automates the one-time provisioning.
+
+---
+
+### DD-013 — API secrets stored in GCP Secret Manager, injected at runtime
+
+**Date:** 2026-04-22
+**Context:** Third-party API keys (`TAVILY_API_KEY`, `MISTRAL_API_KEY`) and auth secret (`JWT_SECRET`) must be kept out of the container image and GitHub Actions environment variables.
+**Decision:** Secrets are stored in GCP Secret Manager and mounted into Cloud Run via `--set-secrets`. The Cloud Run service account has `roles/secretmanager.secretAccessor` for each secret.
+**Rationale:** Centralized secret lifecycle management. Secrets are never stored in source control, build artifacts, or GitHub Actions logs.
+**Trade-offs:** `gcp-setup.sh` must be re-run (or secrets updated manually) whenever a key is rotated.
+
+---
+
+### DD-014 — Two independent GitHub Actions workflows, path-filtered
+
+**Date:** 2026-04-22
+**Context:** Monorepo with separate `backend/` and `frontend/` directories. An all-in-one workflow would redeploy both on every change.
+**Decision:** Two workflows: `backend-ci-cd.yml` (triggers on `backend/**`) and `frontend-ci-cd.yml` (triggers on `frontend/**` and `firebase.json`). Both support `workflow_dispatch` for manual runs.
+**Rationale:** Only the changed layer is tested and deployed. Frontend and backend can evolve independently without coupling their release cycles.
+**Trade-offs:** Shared infra changes (e.g., `firebase.json` rewrites) must be accounted for in path filters.
+
+---
+
+### DD-015 — Chat API changed from request/response to Server-Sent Events (SSE)
+
+**Date:** 2026-04-22
+**Context:** The initial chat endpoint returned a full JSON response after the entire LLM generation completed, creating a noticeable wait with no feedback to the user.
+**Decision:** `POST /chat` changed to stream tokens via SSE. Backend uses `res.write()` with `text/event-stream`. Frontend uses the `EventSource`-compatible fetch streaming pattern to render tokens progressively.
+**Rationale:** Better perceived performance and UX — users see the response being built in real time, consistent with how most chat UIs work.
+**Trade-offs:** SSE requires keeping the HTTP connection open for the duration of generation. Error handling is more complex (errors mid-stream must be encoded as SSE events, not HTTP status codes).
+
+---
+
+### DD-016 — Current date injected into agent system prompt at request time
+
+**Date:** 2026-04-22
+**Context:** The LLM lacks awareness of the current date, leading to stale advice for time-sensitive queries (e.g., seasonal trail conditions, event dates).
+**Decision:** `buildSystemPrompt()` injects the current date (`new Date().toISOString().split('T')[0]`) into the system prompt on every request.
+**Rationale:** Minimal change with meaningful improvement to response accuracy for date-sensitive queries.
+**Trade-offs:** None significant at this scale.
+
+---
+
 ## Pending Decisions
 
-- [ ] Deployment target — Firebase Hosting + Cloud Functions, Vercel + Railway, or other
 - [ ] Rate limiting strategy — per-user token budget or request-per-minute cap
-- [ ] API design — REST (current default) vs. tRPC
 
 ---
 
