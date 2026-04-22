@@ -65,35 +65,47 @@ describe('firebaseAdmin', () => {
     expect(() => getFirebaseAdmin()).toThrow('FIREBASE_PROJECT_ID');
   });
 
-  it('throws when FIREBASE_CLIENT_EMAIL is missing', async () => {
+  it('uses ADC when FIREBASE_CLIENT_EMAIL is missing', async () => {
     setValidEnv();
     delete process.env.FIREBASE_CLIENT_EMAIL;
 
+    const adcCredential = { type: 'adc' };
+    const initializeApp = vi.fn(() => ({ auth: vi.fn() }));
+
     vi.doMock('firebase-admin', () => ({
       apps: [],
-      initializeApp: vi.fn(),
-      credential: { cert: vi.fn() },
+      initializeApp,
+      credential: { cert: vi.fn(), applicationDefault: vi.fn(() => adcCredential) },
     }));
 
     const { getFirebaseAdmin } = await import('./firebaseAdmin');
-    expect(() => getFirebaseAdmin()).toThrow('FIREBASE_CLIENT_EMAIL');
+    expect(getFirebaseAdmin()).toBeDefined();
+    expect(initializeApp).toHaveBeenCalledWith(
+      expect.objectContaining({ credential: adcCredential }),
+    );
   });
 
-  it('throws when FIREBASE_PRIVATE_KEY is missing', async () => {
+  it('uses ADC when FIREBASE_PRIVATE_KEY is missing', async () => {
     setValidEnv();
     delete process.env.FIREBASE_PRIVATE_KEY;
 
+    const adcCredential = { type: 'adc' };
+    const initializeApp = vi.fn(() => ({ auth: vi.fn() }));
+
     vi.doMock('firebase-admin', () => ({
       apps: [],
-      initializeApp: vi.fn(),
-      credential: { cert: vi.fn() },
+      initializeApp,
+      credential: { cert: vi.fn(), applicationDefault: vi.fn(() => adcCredential) },
     }));
 
     const { getFirebaseAdmin } = await import('./firebaseAdmin');
-    expect(() => getFirebaseAdmin()).toThrow('FIREBASE_PRIVATE_KEY');
+    expect(getFirebaseAdmin()).toBeDefined();
+    expect(initializeApp).toHaveBeenCalledWith(
+      expect.objectContaining({ credential: adcCredential }),
+    );
   });
 
-  it('throws listing all missing vars when multiple are absent', async () => {
+  it('throws only for missing FIREBASE_PROJECT_ID regardless of other vars', async () => {
     setValidEnv();
     delete process.env.FIREBASE_PROJECT_ID;
     delete process.env.FIREBASE_PRIVATE_KEY;
@@ -101,13 +113,11 @@ describe('firebaseAdmin', () => {
     vi.doMock('firebase-admin', () => ({
       apps: [],
       initializeApp: vi.fn(),
-      credential: { cert: vi.fn() },
+      credential: { cert: vi.fn(), applicationDefault: vi.fn() },
     }));
 
     const { getFirebaseAdmin } = await import('./firebaseAdmin');
-    expect(() => getFirebaseAdmin()).toThrow(
-      /FIREBASE_PROJECT_ID.*FIREBASE_PRIVATE_KEY|FIREBASE_PRIVATE_KEY.*FIREBASE_PROJECT_ID/,
-    );
+    expect(() => getFirebaseAdmin()).toThrow('FIREBASE_PROJECT_ID');
   });
 
   it('does not call initializeApp when apps is already populated', async () => {

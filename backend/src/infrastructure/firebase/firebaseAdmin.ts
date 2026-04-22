@@ -1,39 +1,36 @@
 import * as admin from 'firebase-admin';
 import { getFirestore as adminGetFirestore } from 'firebase-admin/firestore';
 
-const REQUIRED_ENV_VARS = [
-  'FIREBASE_PROJECT_ID',
-  'FIREBASE_CLIENT_EMAIL',
-  'FIREBASE_PRIVATE_KEY',
-] as const;
-
-function validateEnv(): void {
-  const missing = REQUIRED_ENV_VARS.filter((key) => !process.env[key]);
-  if (missing.length > 0) {
-    throw new Error(
-      `Missing required environment variables: ${missing.join(', ')}`,
-    );
-  }
-}
-
 function initializeAdmin(): admin.app.App {
-  validateEnv();
+  if (!process.env.FIREBASE_PROJECT_ID) {
+    throw new Error('Missing required environment variable: FIREBASE_PROJECT_ID');
+  }
 
   if (admin.apps.length > 0) {
     return admin.apps[0] as admin.app.App;
   }
 
-  const privateKey = (process.env.FIREBASE_PRIVATE_KEY as string).replace(
-    /\\n/g,
-    '\n',
-  );
+  const hasServiceAccountCreds =
+    process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY;
 
+  if (hasServiceAccountCreds) {
+    const privateKey = (process.env.FIREBASE_PRIVATE_KEY as string).replace(
+      /\\n/g,
+      '\n',
+    );
+    return admin.initializeApp({
+      credential: admin.credential.cert({
+        projectId: process.env.FIREBASE_PROJECT_ID,
+        clientEmail: process.env.FIREBASE_CLIENT_EMAIL as string,
+        privateKey,
+      }),
+    });
+  }
+
+  // On GCP (Cloud Run) use Application Default Credentials
   return admin.initializeApp({
-    credential: admin.credential.cert({
-      projectId: process.env.FIREBASE_PROJECT_ID as string,
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL as string,
-      privateKey,
-    }),
+    credential: admin.credential.applicationDefault(),
+    projectId: process.env.FIREBASE_PROJECT_ID,
   });
 }
 

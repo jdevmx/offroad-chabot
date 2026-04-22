@@ -66,7 +66,7 @@ jobs:
             --image "$IMAGE" \
             --region "${{ secrets.CLOUD_RUN_REGION }}" \
             --service-account "${{ secrets.WIF_SERVICE_ACCOUNT }}" \
-            --set-env-vars "CORS_ORIGIN=${{ secrets.CORS_ORIGIN }}" \
+            --set-env-vars "CORS_ORIGIN=${{ secrets.CORS_ORIGIN }},FIREBASE_PROJECT_ID=${{ secrets.GCP_PROJECT_ID }},FIREBASE_DATABASE_ID=(default)" \
             --set-secrets "TAVILY_API_KEY=TAVILY_API_KEY:latest,MISTRAL_API_KEY=MISTRAL_API_KEY:latest" \
             --allow-unauthenticated \
             --quiet
