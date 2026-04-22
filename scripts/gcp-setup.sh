@@ -101,8 +101,10 @@ for role in roles/datastore.user roles/firebaseauth.admin; do
 done
 
 # ── Secret Manager ─────────────────────────────────────────────────────────────
+JWT_SECRET="${JWT_SECRET:-$(openssl rand -base64 48)}"
+
 echo "==> Creating secrets in Secret Manager..."
-for secret_name in TAVILY_API_KEY MISTRAL_API_KEY; do
+for secret_name in TAVILY_API_KEY MISTRAL_API_KEY JWT_SECRET; do
   secret_value="${!secret_name}"
   if ! gcloud secrets describe "$secret_name" --project="$GCP_PROJECT_ID" &>/dev/null; then
     echo -n "$secret_value" | gcloud secrets create "$secret_name" \
