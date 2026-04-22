@@ -6,6 +6,7 @@ on:
       - "frontend/**"
       - "firebase.json"
       - ".github/workflows/frontend-ci-cd.yml"
+  workflow_dispatch:
 
 permissions:
   contents: read
