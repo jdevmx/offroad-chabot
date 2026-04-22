@@ -5,6 +5,7 @@ on:
     paths:
       - "backend/**"
       - ".github/workflows/backend-ci-cd.yml"
+  workflow_dispatch:
 
 permissions:
   contents: read
